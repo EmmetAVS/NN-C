@@ -54,10 +54,10 @@ BASE_TYPE matrix_set_value_at(Matrix *m, int rowIndex, int colIndex, BASE_TYPE v
     if (index >= m->cols * m-> rows) 
         return UNDEFINED;
 
-    const BASE_TYPE oldValue = m->data[index];
+    const BASE_TYPE old_value = m->data[index];
 
     m->data[index] = value;
 
-    return oldValue;
+    return old_value;
 
 }
