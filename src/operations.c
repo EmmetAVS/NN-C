@@ -10,7 +10,7 @@ Vector *add_vector_to_vector(Vector *v1, Vector *v2) {
 
     Vector *new = create_vector(length);
 
-    for (int i = 0; i < length; i ++) {
+    for (size_t i = 0; i < length; i ++) {
 
         new->data[i] = v1->data[i] + v2->data[i];
 
@@ -27,11 +27,11 @@ Vector *multiply_matrix_with_vector(Matrix *m, Vector *v) {
 
     Vector *new = create_vector(m->cols);
 
-    for (int i = 0; i < m->rows; i ++) {
+    for (size_t i = 0; i < m->rows; i ++) {
 
         BASE_TYPE sum = 0;
 
-        for (int c = 0; c < m->cols; c++) {
+        for (size_t c = 0; c < m->cols; c++) {
             sum += matrix_get_value_at(m, i, c) * v->data[c];
         }
 

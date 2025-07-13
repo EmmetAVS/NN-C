@@ -10,7 +10,7 @@ BASE_TYPE mean_squared_error_loss(Vector *outputs, Vector *expected) {
 
     BASE_TYPE sum = 0;
 
-    for (int i = 0; i < outputs->length; i ++) {
+    for (size_t i = 0; i < outputs->length; i ++) {
 
         BASE_TYPE diff = outputs->data[i] - expected->data[i];
 
@@ -30,7 +30,7 @@ BASE_TYPE cross_entropy_loss(Vector *outputs, Vector *expected) {
 
     BASE_TYPE sum = 0;
 
-    for (int i = 0; i < outputs->length; i ++) {
+    for (size_t i = 0; i < outputs->length; i ++) {
 
         sum += (expected->data[i]) * (log(outputs->data[i] + EPSILON));
 
@@ -44,7 +44,7 @@ BASE_TYPE calculate_cost(Vector **outputs, Vector **expected, size_t batch_size,
 
     BASE_TYPE sum = 0;
 
-    for (int i = 0; i < batch_size; i ++) {
+    for (size_t i = 0; i < batch_size; i ++) {
 
         BASE_TYPE result = loss_function(outputs[i], expected[i]);
 
