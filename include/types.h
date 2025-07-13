@@ -6,6 +6,7 @@
 
 #define BASE_TYPE float
 #define UNDEFINED NAN
+#define EPSILON 1e-9
 
 typedef struct Vector {
 

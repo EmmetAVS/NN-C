@@ -1,7 +1,6 @@
 #include "loss.h"
+#include "types.h"
 #include <math.h>
-
-static const BASE_TYPE epsilon = 1e-9; //Prevent NaN's from log(0)
 
 BASE_TYPE mean_squared_error_loss(Vector *outputs, Vector *expected) {
 
@@ -33,7 +32,7 @@ BASE_TYPE cross_entropy_loss(Vector *outputs, Vector *expected) {
 
     for (int i = 0; i < outputs->length; i ++) {
 
-        sum += (expected->data[i]) * (log(outputs->data[i] + epsilon));
+        sum += (expected->data[i]) * (log(outputs->data[i] + EPSILON));
 
     }
 
