@@ -35,7 +35,7 @@ static Vector *relu_backward(Vector *logits, Vector *activated) {
 
 }
 
-ActivationFunction activation_relu = {
+const RawActivationFunction function_activation_relu = {
     .forward = relu_forward,
     .backward = relu_backward
 };
@@ -70,7 +70,7 @@ static Vector *sigmoid_backward(Vector *logits, Vector *activated) {
 
 }
 
-ActivationFunction activation_sigmoid = {
+const RawActivationFunction function_activation_sigmoid = {
     .forward = sigmoid_forward,
     .backward = sigmoid_backward
 };
@@ -128,22 +128,24 @@ static Vector *softmax_with_cross_entropy_loss_backward(Vector *logits, Vector *
 
 }
 
-ActivationLossFunction activation_loss_softmax_cross_entropy = {
+const ActivationLossFunction function_activation_loss_softmax_cross_entropy = {
     .forward = softmax_forward,
     .forward_with_loss = softmax_with_cross_entropy_loss_forward,
     .backward = softmax_with_cross_entropy_loss_backward
 };
 
-Vector *flatten(Matrix *input) {
+ActivationFunction activation_relu = {
+    .type = RAW,
+    .function.activation_function = function_activation_relu
+};
 
-    Vector* new = create_vector(input->rows * input->cols);
+ActivationFunction activation_sigmoid = {
+    .type = RAW,
+    .function.activation_function = function_activation_sigmoid
+};
 
-    for (size_t i = 0; i < new->length; i ++) {
+ActivationFunction activation_loss_softmax_cross_entropy = {
+    .type = WITH_LOSS,
+    .function.activation_loss_function = function_activation_loss_softmax_cross_entropy
+};
 
-        new->data[i] = input->data[i];
-
-    }
-
-    return new;
-
-}

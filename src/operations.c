@@ -80,3 +80,17 @@ Vector *multiply_vector_contents(Vector *v1, Vector *v2) {
     return prod;
 
 }
+
+Vector *flatten(Matrix *input) {
+
+    Vector* new = create_vector(input->rows * input->cols);
+
+    for (size_t i = 0; i < new->length; i ++) {
+
+        new->data[i] = input->data[i];
+
+    }
+
+    return new;
+
+}

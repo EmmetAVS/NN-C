@@ -2,7 +2,7 @@
 
 int main() {
 
-    Vector *output = activation_relu.forward(create_vector(5));
+    Vector *output = activation_relu.function.activation_function.forward(create_vector(5));
 
     return 0;
 
