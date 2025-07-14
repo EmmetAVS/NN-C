@@ -66,3 +66,17 @@ Vector *average_vectors(Vector **vectors, size_t length) {
     return avg;
 
 }
+
+Vector *multiply_vector_contents(Vector *v1, Vector *v2) {
+
+    Vector *prod = create_vector(v1->length);
+
+    for (size_t i = 0; i < prod->length; i ++) {
+
+        prod->data[i] = (v1->data[i]) * (v2->data[i]);
+
+    }
+
+    return prod;
+
+}
