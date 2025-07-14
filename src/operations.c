@@ -22,7 +22,7 @@ Vector *add_vector_to_vector(Vector *v1, Vector *v2) {
 
 Vector *multiply_matrix_with_vector(Matrix *m, Vector *v) {
 
-    if (m->cols != v->length || m->rows != m->cols)
+    if (m->cols != v->length)
         return NULL;
 
     Vector *new = create_vector(m->cols);

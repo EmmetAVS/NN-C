@@ -15,7 +15,7 @@ typedef struct Layer {
 
 } Layer;
 
-Layer *create_layer(size_t input_size, size_t output_size, ActivationFunctionForward *activation_forward);
+Layer *create_layer(size_t input_size, size_t output_size, ActivationFunctionForward activation_forward);
 void destroy_layer(Layer *l);
 Vector *calculate_layer_outputs(Layer *l, Vector *inputs);
 

@@ -1,5 +1,6 @@
 #include "layer.h"
 #include "operations.h"
+#include <stdlib.h>
 
 Layer *create_layer(size_t input_size, size_t output_size, ActivationFunctionForward activation_forward) {
 

@@ -34,10 +34,8 @@ int main() {
     }
 
     Vector *v2 = create_vector(size + 1);
-    Matrix *m2 = create_matrix(size + 1, size);
     
     assert(multiply_matrix_with_vector(m, v2) == NULL);
-    assert(multiply_matrix_with_vector(m2, v) == NULL);
 
     v2 = create_vector(size);
 
