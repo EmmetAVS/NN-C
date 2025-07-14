@@ -42,3 +42,27 @@ Vector *multiply_matrix_with_vector(Matrix *m, Vector *v) {
     return new;
 
 }
+
+Vector *average_vectors(Vector **vectors, size_t length) {
+
+    Vector *avg = create_vector((vectors[0])->length);
+
+    for (size_t i = 0; i < length; i ++) {
+
+        for (size_t j = 0; j < avg->length; j ++) {
+
+            avg->data[j] += vectors[i]->data[j];
+
+        }
+
+    }
+
+    for (size_t i = 0; i < avg->length; i ++) {
+
+        avg->data[i] /= (BASE_TYPE) length;
+
+    }
+
+    return avg;
+
+}
