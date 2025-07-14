@@ -37,10 +37,10 @@ int main() {
     Vector *mse_expected = expected_vecs[0];
     Vector *mse_output = output_vecs[0];
 
-    BASE_TYPE mse_result = mean_squared_error_loss(mse_output, mse_expected);
+    BASE_TYPE mse_result = mean_squared_error_loss.forward(mse_output, mse_expected);
     assert(abs(mse_result - 0.01f) < TOLERANCE);
 
-    assert(abs(calculate_cost(output_vecs, expected_vecs, BATCH_SIZE, mean_squared_error_loss) - 0.012f) < TOLERANCE);
+    assert(abs(calculate_cost(output_vecs, expected_vecs, BATCH_SIZE, mean_squared_error_loss.forward) - 0.012f) < TOLERANCE);
 
     return 0;
 

@@ -3,10 +3,19 @@
 
 #include "types.h"
 
-typedef BASE_TYPE (*LossFunction)(Vector *, Vector *);
+typedef BASE_TYPE (*LossFunctionForward)(Vector *inputs, Vector *labels);
+typedef Vector* (*LossFunctionBackward)(Vector *inputs, Vector *labels);
 
-BASE_TYPE mean_squared_error_loss(Vector *outputs, Vector *expected);
-BASE_TYPE cross_entropy_loss(Vector *outputs, Vector *expected);
-BASE_TYPE calculate_cost(Vector **outputs, Vector **expected, size_t batch_size, LossFunction loss_function);
+typedef struct LossFunction {
+
+    LossFunctionForward forward;
+    LossFunctionBackward backward;
+
+} LossFunction;
+
+extern LossFunction mean_squared_error_loss;
+extern LossFunctionForward cross_entropy_loss;
+
+BASE_TYPE calculate_cost(Vector **inputs_list, Vector **labels_list, size_t batch_size, LossFunctionForward loss_function);
 
 #endif
