@@ -28,7 +28,7 @@ static Vector *mean_squared_error_loss_backward(Vector *outputs, Vector *labels)
 
     for (size_t i = 0; i < grad->length; i ++) {
 
-        grad->data[i] = 2 * (outputs->data[i] - labels->data[i]);
+        grad->data[i] = 2 * (outputs->data[i] - labels->data[i]) / outputs->length;
 
     }
 

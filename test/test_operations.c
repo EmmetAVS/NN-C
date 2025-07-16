@@ -2,6 +2,19 @@
 #include "types.h"
 #include <assert.h>
 
+/*
+
+To Test
+
+Vector *add_vector_to_vector(Vector *v1, Vector *v2);
+Vector *multiply_matrix_with_vector(Matrix *m, Vector *v);
+Vector *average_vectors(Vector **vectors, size_t length);
+Vector *multiply_vector_contents(Vector *v1, Vector *v2);
+Vector* flatten(Matrix* input);
+Matrix *average_matrices(Matrix **matrices, size_t length);
+
+*/
+
 int main() {
 
     const int size = 3;
@@ -32,10 +45,12 @@ int main() {
         assert(product->data[i] == values[i]);
 
     }
+    destroy_vector(product);
 
     Vector *v2 = create_vector(size + 1);
     
     assert(multiply_matrix_with_vector(m, v2) == NULL);
+    destroy_vector(v2);
 
     v2 = create_vector(size);
 
