@@ -67,6 +67,32 @@ Vector *average_vectors(Vector **vectors, size_t length) {
 
 }
 
+Matrix *average_matrices(Matrix **matrices, size_t length) {
+
+    Matrix *averaged = create_matrix(matrices[0]->rows, matrices[0]->cols);
+
+    for (size_t r = 0; r < averaged->rows; r++) {
+
+        for (size_t c = 0; c < averaged->cols; c ++) {
+
+            BASE_TYPE sum = 0;
+
+            for (size_t i = 0; i < length; i ++) {
+
+                sum += matrix_get_value_at(matrices[i], r, c);
+
+            }
+
+            matrix_set_value_at(averaged, r, c, sum / length);
+
+        }
+
+    }
+
+    return averaged;
+
+}
+
 Vector *multiply_vector_contents(Vector *v1, Vector *v2) {
 
     Vector *prod = create_vector(v1->length);
