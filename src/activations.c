@@ -104,13 +104,17 @@ static Vector *softmax_forward(Vector *logits) {
 
     }
 
+    return new;
+
 }
 
 static BASE_TYPE softmax_with_cross_entropy_loss_forward(Vector *logits, Vector *labels) {
     
     Vector *softmaxed = softmax_forward(logits);
 
-    return cross_entropy_loss(softmaxed, labels);
+    BASE_TYPE loss = cross_entropy_loss(softmaxed, labels);
+
+    return loss;
 
 }
 
