@@ -18,9 +18,8 @@ int main() {
     assert(matrix_set_value_at(m, 0, 0, 1) == 0.f);
     assert(matrix_get_value_at(m, 0, 0) == 1.f);
     assert(isnan(matrix_get_value_at(m, 10, 9)));
-    assert(isnan(matrix_get_value_at(m, 10, 9)));
+    assert(isnan(matrix_get_value_at(m, 9, 10)));
 
-    printf("Test Types Succeeded\n");
     return 0;
 
 }

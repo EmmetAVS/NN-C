@@ -3,10 +3,13 @@
 
 Vector *add_vector_to_vector(Vector *v1, Vector *v2) {
 
+    printf("v1: %p; %zu, v2: %p; %zu\n", v1, v1->length, v2, v2->length);
+
     if (v1->length != v2->length)
         return NULL;
 
     const int length = v1->length;
+    printf("Adding two vecs with length: %d\n", length);
 
     Vector *new = create_vector(length);
 
@@ -25,7 +28,7 @@ Vector *multiply_matrix_with_vector(Matrix *m, Vector *v) {
     if (m->cols != v->length)
         return NULL;
 
-    Vector *new = create_vector(m->cols);
+    Vector *new = create_vector(m->rows);
 
     for (size_t i = 0; i < m->rows; i ++) {
 

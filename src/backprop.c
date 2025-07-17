@@ -146,5 +146,5 @@ LayerGradients *average_gradients(LayerGradients **grads, size_t batch_size) {
     averaged->d_inputs = average_vectors(d_inputs, batch_size);
     averaged->d_weights = average_matrices(d_weights, batch_size);
         
-
+    return averaged;
 }

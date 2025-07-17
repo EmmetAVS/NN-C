@@ -9,6 +9,8 @@ include_directories(include)
 file(GLOB SRC_FILES src/*.c)
 add_library(nnlib STATIC ${SRC_FILES})
 
+target_compile_options(nnlib PRIVATE -Wall)
+
 enable_testing()
 
 add_subdirectory(test)

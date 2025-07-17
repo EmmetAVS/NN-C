@@ -4,3 +4,6 @@
 
 #include <assert.h>
 #include <stdio.h>
+
+#include <math.h>
+#define FLOAT_EQ(a, b) (fabsf((a) - (b)) < EPSILON)
