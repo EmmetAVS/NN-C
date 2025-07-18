@@ -3,13 +3,10 @@
 
 Vector *add_vector_to_vector(Vector *v1, Vector *v2) {
 
-    printf("v1: %p; %zu, v2: %p; %zu\n", v1, v1->length, v2, v2->length);
-
     if (v1->length != v2->length)
         return NULL;
 
     const int length = v1->length;
-    printf("Adding two vecs with length: %d\n", length);
 
     Vector *new = create_vector(length);
 
@@ -97,6 +94,9 @@ Matrix *average_matrices(Matrix **matrices, size_t length) {
 }
 
 Vector *multiply_vector_contents(Vector *v1, Vector *v2) {
+
+    printf("v1: %p, v2: %p\n", v1, v2);
+    printf("Vecs length: v1: %d, v2: %d\n", v1->length, v2->length);
 
     Vector *prod = create_vector(v1->length);
 

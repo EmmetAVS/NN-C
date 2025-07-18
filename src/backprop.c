@@ -2,6 +2,7 @@
 #include "types.h"
 #include "operations.h"
 #include <stdlib.h>
+#include <assert.h>
 
 Vector *forward_layer(Layer *layer, Vector *input) {
 
@@ -25,12 +26,19 @@ LayerGradients *backward_layer(Layer *layer, Vector *input, Vector *logits, Back
     Vector *dLoss_dLogits;
     if (context->type == dLoss_dActivation) {
 
+        printf("dLoss_dActivation context\n");
+
         BackpropContextDLossDActivation dLoss_dActivation_context = context->dLoss_dActivation;
+        printf("dL_dA from context: %p, activated from context: %p\n", dLoss_dActivation_context.dL_dA, dLoss_dActivation_context.activated);
         Vector *dLoss_dActivation = dLoss_dActivation_context.dL_dA;
         Vector *activated = dLoss_dActivation_context.activated;
-        Vector *dActivation_dLogits = layer->activation.function.activation_function.backward(logits, activated);
 
+        printf("Accessed dL/dA and activated from context\n");
+        Vector *dActivation_dLogits = layer->activation.function.activation_loss_function.backward(logits, activated);
+
+        printf("Calculated dA/dZ\n");
         dLoss_dLogits = multiply_vector_contents(dLoss_dActivation, dActivation_dLogits);
+        printf("Calculated dL/dZ\n");
 
     } else if (context->type == LabelsOutput) {
 
