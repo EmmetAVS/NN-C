@@ -120,11 +120,7 @@ static BASE_TYPE softmax_with_cross_entropy_loss_forward(Vector *logits, Vector 
 
 static Vector *softmax_with_cross_entropy_loss_backward(Vector *logits, Vector *labels) {
 
-    printf("entered softmax with celb\n");
-
     Vector *new = softmax_forward(logits);
-
-    printf("logits length: %d, labels length: %d\n", logits->length, labels->length);
 
     for (size_t i = 0; i < new->length; i ++) {
 
