@@ -20,7 +20,7 @@ typedef enum BackpropContextType {
 
 typedef struct BackpropContextDLossDActivation {
     Vector *dL_dA;
-    Vector *activated;
+    Vector *output;
 } BackpropContextDLossDActivation;
 
 typedef struct BackpropContextLabelsOutput {

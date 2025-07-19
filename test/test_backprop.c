@@ -16,7 +16,6 @@ void test_forward_backward_update() {
 
     Layer *layer = create_layer(3, 2, activation_loss_softmax_cross_entropy);
 
-    // Initialize weights and biases
     for (size_t i = 0; i < 3 * 2; i++) {
         layer->weights->data[i] = 0.1f;
     }
@@ -24,20 +23,25 @@ void test_forward_backward_update() {
         layer->biases->data[i] = 0.0f;
     }
 
-    printf("Layer created, weights set, biases set\n");
+    Vector *activated = forward_layer(layer, input);
+    assert(activated != NULL);
+    assert(activated->length == 2);
 
-    Vector *logits = forward_layer(layer, input);
-    assert(logits != NULL);
-    assert(logits->length == 2);
+    Vector *logits = create_vector(2);
+    for (size_t i = 0; i < 2; i++) {
+        BASE_TYPE sum = 0.0f;
+        for (size_t j = 0; j < 3; j++) {
+            sum += matrix_get_value_at(layer->weights, i, j) * input->data[j];
+        }
+        sum += layer->biases->data[i];
+        logits->data[i] = sum;
+    }
 
-    printf("Logits produced\n");
-
-    // Compute dL/dZ manually
     BASE_TYPE exp0 = exp(logits->data[0]);
     BASE_TYPE exp1 = exp(logits->data[1]);
-    BASE_TYPE sum = exp0 + exp1;
-    BASE_TYPE softmax0 = exp0 / sum;
-    BASE_TYPE softmax1 = exp1 / sum;
+    BASE_TYPE sum_exp = exp0 + exp1;
+    BASE_TYPE softmax0 = exp0 / sum_exp;
+    BASE_TYPE softmax1 = exp1 / sum_exp;
 
     BASE_TYPE dL_dz0 = softmax0 - label->data[0];
     BASE_TYPE dL_dz1 = softmax1 - label->data[1];
@@ -46,22 +50,12 @@ void test_forward_backward_update() {
     dLoss_dZ->data[0] = dL_dz0;
     dLoss_dZ->data[1] = dL_dz1;
 
-    printf("dL/dZ calculated manually\n");
-
-    // Compute activated output (softmax output) for .activated field
-    Vector *activated = layer->activation.function.activation_loss_function.forward(logits);
-    
-    printf("activated calculated\n");
-
     BackpropContext context = {
-        .type = dLoss_dActivation,
-        .dLoss_dActivation = {
-            .dL_dA = dLoss_dZ,
-            .activated = activated
+        .type = LabelsOutput,
+        .labels_output = {
+            .labels = label
         }
     };
-
-    printf("Context created\n");
 
     LayerGradients *grads = backward_layer(layer, input, logits, &context);
     assert(grads != NULL);
@@ -69,11 +63,6 @@ void test_forward_backward_update() {
     assert(grads->d_biases != NULL);
     assert(grads->d_inputs != NULL);
 
-    printf("Backward layer\n");
-
-    // Check gradients as before...
-
-    printf("grads->d_biases[0]: %f, expected dL_dz0: %f\n", grads->d_biases->data[0], dL_dz0);
     assert(fabs(grads->d_biases->data[0] - dL_dz0) < EPSILON);
     assert(fabs(grads->d_biases->data[1] - dL_dz1) < EPSILON);
 
@@ -91,8 +80,8 @@ void test_forward_backward_update() {
 
     for (size_t i = 0; i < 3; i++) {
         BASE_TYPE expected =
-            layer->weights->data[0 * 3 + i] * dL_dz0 +
-            layer->weights->data[1 * 3 + i] * dL_dz1;
+            matrix_get_value_at(layer->weights, 0, i) * dL_dz0 +
+            matrix_get_value_at(layer->weights, 1, i) * dL_dz1;
         assert(fabs(grads->d_inputs->data[i] - expected) < EPSILON);
     }
 
@@ -103,12 +92,11 @@ void test_forward_backward_update() {
     BASE_TYPE new_weight = layer->weights->data[0];
     assert(fabs(new_weight - old_weight) > 0.0f);
 
-    // Cleanup
     destroy_vector(dLoss_dZ);
+    destroy_vector(logits);
     destroy_vector(activated);
     destroy_vector(input);
     destroy_vector(label);
-    destroy_vector(logits);
     destroy_layer_gradients(grads);
     destroy_layer(layer);
 }
