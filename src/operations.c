@@ -95,9 +95,6 @@ Matrix *average_matrices(Matrix **matrices, size_t length) {
 
 Vector *multiply_vector_contents(Vector *v1, Vector *v2) {
 
-    printf("v1: %p, v2: %p\n", v1, v2);
-    printf("Vecs length: v1: %d, v2: %d\n", v1->length, v2->length);
-
     Vector *prod = create_vector(v1->length);
 
     for (size_t i = 0; i < prod->length; i ++) {

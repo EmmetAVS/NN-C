@@ -5,6 +5,14 @@
 #include "activations.h"
 #include "loss.h"
 
+typedef struct LayerContext {
+
+    Vector *inputs;
+    Vector *logits;
+    Vector *activated_output;
+
+} LayerContext;
+
 typedef struct Layer {
 
     Matrix *weights;
@@ -12,10 +20,13 @@ typedef struct Layer {
     ActivationFunction activation;
     size_t input_size;
     size_t output_size;
+    LayerContext *context;
 
 } Layer;
 
 Layer *create_layer(size_t input_size, size_t output_size, ActivationFunction activation);
 void destroy_layer(Layer *l);
+LayerContext *create_layer_context(Vector *inputs, Vector *logits, Vector *activated);
+void destroy_layer_context(LayerContext *context);
 
 #endif

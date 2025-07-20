@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <stddef.h>
+#include <stdbool.h>
 
 #define BASE_TYPE float
 #define UNDEFINED NAN

@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-Vector *forward_layer(Layer *layer, Vector *input) {
+Vector *forward_layer(Layer *layer, Vector *input, bool save_context) {
 
     Vector *logits_no_bias = multiply_matrix_with_vector(layer->weights, input);
     Vector *logits = add_vector_to_vector(logits_no_bias, layer->biases);
@@ -12,7 +12,14 @@ Vector *forward_layer(Layer *layer, Vector *input) {
 
     const ActivationFunctionForward forward_activation = layer->activation.type == RAW ? layer->activation.function.activation_function.forward : layer->activation.function.activation_loss_function.forward;
     Vector *activated = forward_activation(logits);
-    destroy_vector(logits);
+
+    if (save_context) {
+        if (layer->context) destroy_layer_context(layer->context);
+        layer->context = create_layer_context(input, logits, activated);
+    } else {
+        layer->context = NULL;
+        destroy_vector(logits);
+    }
 
     return activated;
 

@@ -23,7 +23,7 @@ void test_forward_backward_update() {
         layer->biases->data[i] = 0.0f;
     }
 
-    Vector *activated = forward_layer(layer, input);
+    Vector *activated = forward_layer(layer, input, true);
     assert(activated != NULL);
     assert(activated->length == 2);
 

@@ -35,7 +35,7 @@ typedef struct BackpropContext {
 
 } BackpropContext;
 
-Vector *forward_layer(Layer *layer, Vector *input);
+Vector *forward_layer(Layer *layer, Vector *input, bool save_context);
 
 LayerGradients *backward_layer(Layer *layer, Vector *input, Vector *logits, BackpropContext *context);
 
