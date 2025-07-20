@@ -14,6 +14,7 @@ Layer *create_layer(size_t input_size, size_t output_size, ActivationFunction ac
     l->weights = create_matrix(output_size, input_size);
 
     l->context = NULL;
+    l->grads = NULL;
     return l;
 
 }
@@ -27,6 +28,7 @@ void destroy_layer(Layer *l) {
     destroy_vector(l->biases);
 
     if (l->context) destroy_layer_context(l->context);
+    if (l->grads) destroy_layer_gradients(l->grads);
 
     free(l);
 

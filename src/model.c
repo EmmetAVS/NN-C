@@ -96,10 +96,45 @@ Vector *model_forward(Model *model, Vector *inputs) {
 
 }
 
-void model_backward(Model *model) {
+void model_backward(Model *model, Vector *labels) {
 
-    if (!model->calc_grads) return;
+    if (!model->calc_grads || model->num_layers < 1) return;
     
-    
+    Vector *latest_output = model->layers[model->num_layers - 1]->context->activated_output;
+    Vector *dL_dA = NULL;
+
+    for (size_t i = model->num_layers - 1; i >= 0; i --) {
+
+        Layer *current_layer = model->layers[i];
+
+        Vector *activated_output = latest_output;
+        LayerContext *layer_context = current_layer->context;
+
+        BackpropContext backprop_context;
+
+        if (current_layer->activation.type == RAW) {
+
+            if (dL_dA == NULL) {
+
+                dL_dA = model->loss.backward(layer_context->activated_output, labels);
+
+            }
+
+            backprop_context.type = dLoss_dActivation;
+            BackpropContextDLossDActivation dLoss_dActivation_context = {.output = layer_context->activated_output, .dL_dA = dL_dA};
+            backprop_context.dLoss_dActivation = dLoss_dActivation_context;
+
+        } else {
+
+            backprop_context.type = LabelsOutput;
+            BackpropContextLabelsOutput labels_output_context = {.labels = labels};
+            backprop_context.labels_output = labels_output_context;
+
+        }
+
+        current_layer->grads = backward_layer(current_layer, layer_context->inputs, layer_context->logits, &backprop_context);
+        dL_dA = current_layer->grads->d_inputs;
+
+    }
 
 }
