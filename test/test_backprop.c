@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <math.h>
 #include "backprop.h"
+#include "loss.h"
 #include "tests.h"
 
 void test_forward_backward_update() {
@@ -110,8 +111,57 @@ void test_create_destroy_layer_gradients() {
     destroy_layer_gradients(grads);
 }
 
+void test_loss_decreases_after_update() {
+    Vector *input = create_vector(3);
+    input->data[0] = 1.0f;
+    input->data[1] = 2.0f;
+    input->data[2] = 3.0f;
+
+    Vector *label = create_vector(2);
+    label->data[0] = 0.0f;
+    label->data[1] = 1.0f;
+
+    Layer *layer = create_layer(3, 2, activation_loss_softmax_cross_entropy);
+
+    for (size_t i = 0; i < 3 * 2; i++) {
+        layer->weights->data[i] = 0.1f;
+    }
+    for (size_t i = 0; i < 2; i++) {
+        layer->biases->data[i] = 0.0f;
+    }
+
+    // Forward pass before update
+    Vector *output_before = forward_layer(layer, input, true);
+    BASE_TYPE loss_before = cross_entropy_loss(output_before, label);
+
+    // Backward pass
+    BackpropContext context = {
+        .type = LabelsOutput,
+        .labels_output = { .labels = label }
+    };
+
+    LayerGradients *grads = backward_layer(layer, input, layer->context->logits, &context);
+    update_layer_parameters(layer, grads, 0.1f);  // Use a larger learning rate to see the effect
+
+    // Forward pass after update
+    Vector *output_after = forward_layer(layer, input, false);
+    BASE_TYPE loss_after = cross_entropy_loss(output_after, label);
+
+    printf("Loss before: %f, Loss after: %f\n", loss_before, loss_after);
+    assert(loss_after < loss_before);
+
+    // Cleanup
+    destroy_vector(input);
+    destroy_vector(label);
+    destroy_vector(output_before);
+    destroy_vector(output_after);
+    destroy_layer_gradients(grads);
+    destroy_layer(layer);
+}
+
 int main() {
     test_create_destroy_layer_gradients();
     test_forward_backward_update();
+    test_loss_decreases_after_update();
     return 0;
 }

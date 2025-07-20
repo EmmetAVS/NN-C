@@ -4,7 +4,6 @@
 #include "types.h"
 #include "activations.h"
 #include "loss.h"
-#include "backprop.h"
 
 typedef struct LayerContext {
 
@@ -22,7 +21,6 @@ typedef struct Layer {
     size_t input_size;
     size_t output_size;
     LayerContext *context;
-    LayerGradients *grads;
 
 } Layer;
 
