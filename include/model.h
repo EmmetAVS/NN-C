@@ -5,6 +5,8 @@
 #include "layer.h"
 #include "backprop.h"
 
+typedef struct Optimizer Optimizer;
+
 typedef struct Model {
     Layer **layers;
     size_t num_layers;
@@ -32,5 +34,7 @@ void model_backward(Model *model, Vector *labels);
 
 void model_average_grads(Model *model);
 void model_clear_accumulated_grads(Model *model);
+
+void model_step(Model *model, Optimizer *o);
 
 #endif

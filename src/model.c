@@ -1,4 +1,5 @@
 #include "model.h"
+#include "optimizer.h"
 #include <stdlib.h>
 
 Model *create_model(size_t **shape, ActivationFunction *activations, size_t num_layers, LossFunction loss) {
@@ -200,5 +201,17 @@ void model_clear_accumulated_grads(Model *model) {
     model->current_grads_accumulated = 0;
     model->max_grads = 0;
     model->gradients = NULL;
+
+}
+
+void model_step(Model *model, Optimizer *o) {
+
+    if (!model->averaged_gradients) return;
+
+    for (size_t i = 0; i < model->layers; i ++) {
+
+        o->step(o, model->layers[i], model->averaged_gradients[i]);
+
+    }
 
 }
