@@ -4,7 +4,6 @@
 #include "loss.h"
 #include "layer.h"
 
-// Utility to create a vector from a C array
 Vector *create_vector_from_array(BASE_TYPE *data, size_t size) {
     Vector *v = create_vector(size);
     for (size_t i = 0; i < size; ++i)
@@ -12,13 +11,11 @@ Vector *create_vector_from_array(BASE_TYPE *data, size_t size) {
     return v;
 }
 
-// Simple loss print for debug
 void print_loss(BASE_TYPE loss, int step) {
     printf("Step %d: Loss = %.6f\n", step, loss);
 }
 
 void test_training_loop_reduces_loss() {
-    // Define input and output data (XOR problem)
     BASE_TYPE x_data[4][2] = {
         {0, 0}, {0, 1}, {1, 0}, {1, 1}
     };
@@ -30,7 +27,6 @@ void test_training_loop_reduces_loss() {
     const int epochs = 200;
     const int print_every = 50;
 
-    // Model: 2 -> 4 -> 1 (ReLU then Sigmoid)
     size_t *shape[2];
     shape[0] = malloc(2 * sizeof(size_t));
     shape[1] = malloc(2 * sizeof(size_t));
@@ -41,7 +37,7 @@ void test_training_loop_reduces_loss() {
     Model *model = create_model(shape, activations, 2, mean_squared_error_loss);
     model_set_calculate_grads(model, true);
 
-    Optimizer *opt = create_SGD_optimizer(0.1f);
+    Optimizer *opt = create_SGD_optimizer(1.f);
 
     Vector *inputs[samples], *labels[samples];
     for (int i = 0; i < samples; ++i) {
@@ -79,7 +75,7 @@ void test_training_loop_reduces_loss() {
             if (epoch == 0) {
                 prev_loss = total_loss;
             } else {
-                assert(total_loss < prev_loss && "Loss did not decrease!");
+                assert(total_loss < prev_loss && "Loss did not decrease.");
                 prev_loss = total_loss;
             }
         }
