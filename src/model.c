@@ -46,11 +46,12 @@ void model_set_calculate_grads(Model *model, bool calc_grads) {
 void model_zero_grads(Model *model) {
 
     if (!model->gradients) return;
-    for (size_t i = 0; i < model->current_grads_accumulated; i ++) {
+    for (size_t i = 0; i < model->num_layers; i ++) {
 
-        for (size_t j = 0; j < model->num_layers; j++) {
+        for (size_t j = 0; j < model->current_grads_accumulated; j++) {
             destroy_layer_gradients(model->gradients[i][j]);
         }
+        if (model->averaged_gradients) destroy_layer_gradients(model->averaged_gradients[i]);
 
     }
 
@@ -63,8 +64,14 @@ void model_zero_grads(Model *model) {
 void model_set_max_grads(Model *model, size_t max_grads) {
     model_zero_grads(model);
 
-    model->gradients = (LayerGradients ***)malloc(sizeof(LayerGradients**) * max_grads);
+    model->gradients = (LayerGradients ***)malloc(sizeof(LayerGradients**) * model->num_layers);
     model->max_grads = max_grads;
+
+    for (size_t i = 0; i < model->num_layers; i ++) {
+
+        model->gradients[i] = (LayerGradients **)malloc(sizeof(LayerGradients*) * max_grads);
+
+    }
 }
 
 static Vector *model_inference(Model *model, Vector *inputs) {
@@ -112,8 +119,6 @@ void model_backward(Model *model, Vector *labels) {
     if (!model->calc_grads || model->num_layers < 1 || model->current_grads_accumulated == model->max_grads) return;
     Vector *dL_dA = NULL;
 
-    LayerGradients **current_batch_gradients = (LayerGradients**)malloc(sizeof(LayerGradients *) * model->num_layers);
-
     for (size_t i = model->num_layers - 1; i >= 0; i --) {
 
         Layer *current_layer = model->layers[i];
@@ -141,12 +146,56 @@ void model_backward(Model *model, Vector *labels) {
 
         }
 
-        current_batch_gradients[i] = backward_layer(current_layer, layer_context->inputs, layer_context->logits, &backprop_context);
-        dL_dA = current_batch_gradients[i]->d_inputs;
+        model->gradients[i][model->current_grads_accumulated] = backward_layer(current_layer, layer_context->inputs, layer_context->logits, &backprop_context);
+        dL_dA = model->gradients[i][model->current_grads_accumulated]->d_inputs;
+
+    }
+    model->current_grads_accumulated ++;
+
+}
+
+void model_average_grads(Model *model) {
+    size_t grad_accumulation_diff = model->max_grads - model->current_grads_accumulated;
+
+    model->averaged_gradients = (LayerGradients **)malloc(sizeof(LayerGradients*) * model->num_layers);
+    for (size_t i = 0; i < model->num_layers; i ++) {
+
+        LayerGradients **resized_accumulated_grads;
+        if (grad_accumulation_diff > 0) {
+            resized_accumulated_grads = (LayerGradients **)malloc(sizeof(LayerGradients *) * model->current_grads_accumulated);
+
+            for (size_t j = 0; j < model->current_grads_accumulated; j ++) {
+                resized_accumulated_grads[j] = model->gradients[i][j];
+            }
+        } else {
+            resized_accumulated_grads = model->gradients[i];
+        }
+
+        model->averaged_gradients[i] = average_gradients(resized_accumulated_grads, model->current_grads_accumulated);
+        if (grad_accumulation_diff > 0) free(resized_accumulated_grads);
 
     }
 
-    model->gradients[model->current_grads_accumulated] = current_batch_gradients;
-    model->current_grads_accumulated ++;
+}
+
+void model_clear_accumulated_grads(Model *model) {
+
+    if (!model->gradients) return;
+    for (size_t i = 0; i < model->num_layers; i ++) {
+
+        for (size_t j = 0; j < model->current_grads_accumulated; j ++) {
+
+            destroy_layer_gradients(model->gradients[i][j]);
+
+        }
+
+        free(model->gradients[i]);
+
+    }
+
+    free(model->gradients);
+    model->current_grads_accumulated = 0;
+    model->max_grads = 0;
+    model->gradients = NULL;
 
 }

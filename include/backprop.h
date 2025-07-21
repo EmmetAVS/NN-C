@@ -44,4 +44,6 @@ void update_layer_parameters(Layer *layer, LayerGradients *grads, BASE_TYPE lear
 LayerGradients *create_layer_gradients(size_t input_size, size_t output_size);
 void destroy_layer_gradients(LayerGradients *grads);
 
+LayerGradients *average_gradients(LayerGradients **grads, size_t batch_size);
+
 #endif

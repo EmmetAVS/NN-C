@@ -1,5 +1,5 @@
 #include "layer.h"
-#include "activation.h"
+#include "activations.h"
 #include "tests.h"
 #include <assert.h>
 #include <stdio.h>
