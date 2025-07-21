@@ -54,6 +54,7 @@ int main() {
 
     Vector *logits = create_vector(LENGTH);
 
+    free(logits->data);
     logits->data = ex_relu_logits;
 
     Vector *output = activation_relu.function.activation_function.forward(logits);
@@ -74,6 +75,9 @@ int main() {
 
     //Test Softmax + Cross Entropy Combination
     test_softmax_cross_entropy();
+    free(logits);
+    destroy_vector(output);
+    destroy_vector(relu_backwards);
 
     return 0;
 

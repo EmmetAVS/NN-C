@@ -13,8 +13,9 @@ Vector *forward_layer(Layer *layer, Vector *input, bool save_context) {
     const ActivationFunctionForward forward_activation = layer->activation.type == RAW ? layer->activation.function.activation_function.forward : layer->activation.function.activation_loss_function.forward;
     Vector *activated = forward_activation(logits);
 
+    if (layer->context) destroy_layer_context(layer->context);
+    
     if (save_context) {
-        if (layer->context) destroy_layer_context(layer->context);
         layer->context = create_layer_context(input, logits, activated);
     } else {
         layer->context = NULL;
@@ -80,6 +81,8 @@ LayerGradients *backward_layer(Layer *layer, Vector *input, Vector *logits, Back
         grads->d_inputs->data[input_index] = sum;
 
     }
+
+    destroy_vector(dLoss_dLogits);
 
     return grads;
 

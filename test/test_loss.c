@@ -48,6 +48,15 @@ int main() {
 
     }
 
+    for (size_t i = 0; i < BATCH_SIZE; i ++) {
+
+        destroy_vector(expected_vecs[i]);
+        destroy_vector(output_vecs[i]);
+
+    }
+
+    destroy_vector(dLoss_dActivated);
+
     return 0;
 
 }

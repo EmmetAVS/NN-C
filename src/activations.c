@@ -114,6 +114,8 @@ static BASE_TYPE softmax_with_cross_entropy_loss_forward(Vector *logits, Vector 
 
     BASE_TYPE loss = cross_entropy_loss(softmaxed, labels);
 
+    destroy_vector(softmaxed);
+
     return loss;
 
 }

@@ -67,6 +67,11 @@ int main() {
 
     }
 
+    destroy_vector(v);
+    destroy_matrix(m);
+    destroy_vector(v2);
+    destroy_vector(sum);
+
     return 0;
 
 }
