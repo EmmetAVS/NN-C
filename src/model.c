@@ -59,6 +59,7 @@ void model_zero_grads(Model *model) {
     }
 
     free(model->gradients);
+    model->gradients = NULL;
     model->current_grads_accumulated = 0;
     model->max_grads = 0;
 
@@ -85,8 +86,8 @@ static Vector *model_inference(Model *model, Vector *inputs) {
 
     for (size_t i = 0; i < model->num_layers; i++) {
 
-        current_output = forward_layer(model->layers[i], current_output, false);
-
+        Vector *placeholder = forward_layer(model->layers[i], current_output, false);
+        current_output = placeholder;
     }
 
     return current_output;
@@ -99,8 +100,9 @@ static Vector *model_forward_with_grad(Model *model, Vector *inputs) {
 
     for (size_t i = 0; i < model->num_layers; i++) {
 
-        current_output = forward_layer(model->layers[i], current_output, true);
-
+        Vector *placeholder = forward_layer(model->layers[i], current_output, true);
+        current_output = placeholder;
+        
     }
 
     return current_output;
@@ -208,7 +210,7 @@ void model_step(Model *model, Optimizer *o) {
 
     if (!model->averaged_gradients) return;
 
-    for (size_t i = 0; i < model->layers; i ++) {
+    for (size_t i = 0; i < model->num_layers; i ++) {
 
         o->step(o, model->layers[i], model->averaged_gradients[i]);
 

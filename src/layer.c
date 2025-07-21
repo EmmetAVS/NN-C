@@ -13,6 +13,15 @@ Layer *create_layer(size_t input_size, size_t output_size, ActivationFunction ac
     l->biases = create_vector(output_size);
     l->weights = create_matrix(output_size, input_size);
 
+    BASE_TYPE weight_scale = sqrt(2.0 / (input_size + output_size));
+    
+    for (size_t i = 0; i < output_size; i++) {
+        for (size_t j = 0; j < input_size; j++) {
+            BASE_TYPE random_val = ((BASE_TYPE)rand() / RAND_MAX) * 2.0 - 1.0;
+            matrix_set_value_at(l->weights, i, j, random_val * weight_scale);
+        }
+    }
+
     l->context = NULL;
     return l;
 
