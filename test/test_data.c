@@ -3,7 +3,7 @@
 
 int main() {
 
-    CSVOutput *output = read_csv("/mnt/c/Users/aarus/Downloads/test_data.csv", INTEGER);
+    CSVOutput *output = read_csv("/mnt/c/Users/aarus/Downloads/test_data.csv", FLOAT);
     printf("output: %p\n", output);
 
     printf("Rows: %zu, Cols: %zu.\n", output->data_rows, output->cols);
@@ -20,7 +20,7 @@ int main() {
 
         for (size_t c = 0; c < output->cols; c ++) {
 
-            printf("%d", ((int**) (output->data))[r][c]);
+            printf("%f", ((float**) (output->data))[r][c]);
             if (c != output->cols - 1) printf(", ");
 
         }

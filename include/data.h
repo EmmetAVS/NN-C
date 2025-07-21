@@ -5,7 +5,7 @@
 
 typedef enum CSVOutputType {
 
-    INTEGER, STRING
+    INTEGER, STRING, FLOAT
 
 } CSVOutputType;
 

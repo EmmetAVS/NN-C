@@ -114,6 +114,23 @@ static int *parse_ints_from_line(char *line, size_t num_cols) {
 
 }
 
+static float *parse_floats_from_line(char *line, size_t num_cols) {
+
+    float *data = (float *)malloc(sizeof(float) * num_cols);
+    
+    char **strings = parse_strings_from_line(line, num_cols);
+    for (size_t i = 0; i < num_cols; i ++) {
+
+        data[i] = (float) atof(strings[i]);
+        free(strings[i]);
+
+    }
+
+    free(strings);
+    return data;
+
+}
+
 CSVOutput *read_csv(const char *filename, CSVOutputType output_type) {
 
     FILE *file = fopen(filename, "r");
@@ -156,6 +173,8 @@ CSVOutput *read_csv(const char *filename, CSVOutputType output_type) {
             output->data[cur_row] = parse_ints_from_line(line, output->cols);
         } else if (output_type == STRING) {
             output->data[cur_row] = parse_strings_from_line(line, output->cols);
+        } else if (output_type == FLOAT) {
+            output->data[cur_row] = parse_floats_from_line(line, output->cols);
         }
         cur_row++;
 
@@ -173,7 +192,7 @@ void destroy_csv_output(CSVOutput *output) {
 
     for (size_t rows = 0; rows < output->data_rows; rows ++) {
 
-        if (output->output_type == INTEGER) {
+        if (output->output_type != STRING) {
             free(output->data[rows]);
             continue;
         }
