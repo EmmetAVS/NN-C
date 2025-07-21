@@ -51,7 +51,9 @@ void model_zero_grads(Model *model) {
         for (size_t j = 0; j < model->current_grads_accumulated; j++) {
             destroy_layer_gradients(model->gradients[i][j]);
         }
-        if (model->averaged_gradients) destroy_layer_gradients(model->averaged_gradients[i]);
+        if (model->averaged_gradients) {
+            destroy_layer_gradients(model->averaged_gradients[i]);
+        }
 
     }
 
@@ -105,12 +107,11 @@ static Vector *model_forward_with_grad(Model *model, Vector *inputs) {
 }
 
 Vector *model_forward(Model *model, Vector *inputs) {
-
     if (model->calc_grads) {
-        return model_inference(model, inputs);
+        return model_forward_with_grad(model, inputs);
     }
+    return model_inference(model, inputs);
 
-    return model_forward_with_grad(model, inputs);
 
 }
 
@@ -119,7 +120,7 @@ void model_backward(Model *model, Vector *labels) {
     if (!model->calc_grads || model->num_layers < 1 || model->current_grads_accumulated == model->max_grads) return;
     Vector *dL_dA = NULL;
 
-    for (size_t i = model->num_layers - 1; i >= 0; i --) {
+    for (int i = (int) model->num_layers - 1; i >= 0; i --) {
 
         Layer *current_layer = model->layers[i];
         LayerContext *layer_context = current_layer->context;
@@ -127,7 +128,6 @@ void model_backward(Model *model, Vector *labels) {
         BackpropContext backprop_context;
 
         if (current_layer->activation.type == RAW) {
-
             if (dL_dA == NULL) {
 
                 dL_dA = model->loss.backward(layer_context->activated_output, labels);
@@ -146,7 +146,8 @@ void model_backward(Model *model, Vector *labels) {
 
         }
 
-        model->gradients[i][model->current_grads_accumulated] = backward_layer(current_layer, layer_context->inputs, layer_context->logits, &backprop_context);
+        LayerGradients *grad = backward_layer(current_layer, layer_context->inputs, layer_context->logits, &backprop_context);
+        model->gradients[i][model->current_grads_accumulated] = grad;
         dL_dA = model->gradients[i][model->current_grads_accumulated]->d_inputs;
 
     }
@@ -172,7 +173,9 @@ void model_average_grads(Model *model) {
         }
 
         model->averaged_gradients[i] = average_gradients(resized_accumulated_grads, model->current_grads_accumulated);
-        if (grad_accumulation_diff > 0) free(resized_accumulated_grads);
+        if (grad_accumulation_diff > 0) {
+            free(resized_accumulated_grads);
+        }
 
     }
 

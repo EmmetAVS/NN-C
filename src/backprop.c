@@ -150,10 +150,6 @@ LayerGradients *average_gradients(LayerGradients **grads, size_t batch_size) {
 
     LayerGradients *averaged = (LayerGradients *)malloc(sizeof(LayerGradients));
 
-    destroy_vector(averaged->d_biases);
-    destroy_vector(averaged->d_inputs);
-    destroy_matrix(averaged->d_weights);
-
     averaged->d_biases = average_vectors(d_biases, batch_size);
     averaged->d_inputs = average_vectors(d_inputs, batch_size);
     averaged->d_weights = average_matrices(d_weights, batch_size);
