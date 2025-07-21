@@ -13,7 +13,10 @@ Vector *forward_layer(Layer *layer, Vector *input, bool save_context) {
     const ActivationFunctionForward forward_activation = layer->activation.type == RAW ? layer->activation.function.activation_function.forward : layer->activation.function.activation_loss_function.forward;
     Vector *activated = forward_activation(logits);
 
-    if (layer->context) destroy_layer_context(layer->context);
+    if (layer->context) {
+        destroy_layer_context(layer->context);
+        layer->context = NULL;
+    }
     
     if (save_context) {
         layer->context = create_layer_context(input, logits, activated);
@@ -41,6 +44,7 @@ LayerGradients *backward_layer(Layer *layer, Vector *input, Vector *logits, Back
         Vector *dActivation_dLogits = layer->activation.function.activation_function.backward(logits, output);
 
         dLoss_dLogits = multiply_vector_contents(dLoss_dActivation, dActivation_dLogits);
+        destroy_vector(dActivation_dLogits);
         
     } else if (context->type == LabelsOutput) {
 

@@ -52,6 +52,9 @@ void model_zero_grads(Model *model) {
         for (size_t j = 0; j < model->current_grads_accumulated; j++) {
             destroy_layer_gradients(model->gradients[i][j]);
         }
+
+        free(model->gradients[i]);
+
         if (model->averaged_gradients) {
             destroy_layer_gradients(model->averaged_gradients[i]);
         }
@@ -59,6 +62,7 @@ void model_zero_grads(Model *model) {
     }
 
     free(model->gradients);
+    free(model->averaged_gradients);
     model->gradients = NULL;
     model->current_grads_accumulated = 0;
     model->max_grads = 0;
@@ -80,13 +84,13 @@ void model_set_max_grads(Model *model, size_t max_grads) {
 
 static Vector *model_inference(Model *model, Vector *inputs) {
 
-    //Assume model no grad for inference
-
     Vector *current_output = inputs;
 
     for (size_t i = 0; i < model->num_layers; i++) {
 
         Vector *placeholder = forward_layer(model->layers[i], current_output, false);
+        if (current_output != inputs) 
+            destroy_vector(current_output);
         current_output = placeholder;
     }
 
@@ -100,7 +104,9 @@ static Vector *model_forward_with_grad(Model *model, Vector *inputs) {
 
     for (size_t i = 0; i < model->num_layers; i++) {
 
-        Vector *placeholder = forward_layer(model->layers[i], current_output, true);
+        Layer *layer = model->layers[i];
+
+        Vector *placeholder = forward_layer(layer, current_output, true);
         current_output = placeholder;
         
     }
@@ -129,11 +135,13 @@ void model_backward(Model *model, Vector *labels) {
         LayerContext *layer_context = current_layer->context;
 
         BackpropContext backprop_context;
+        bool dL_dA_calculated_through_loss = false;
 
         if (current_layer->activation.type == RAW) {
             if (dL_dA == NULL) {
 
                 dL_dA = model->loss.backward(layer_context->activated_output, labels);
+                dL_dA_calculated_through_loss = true;
 
             }
 
@@ -150,6 +158,8 @@ void model_backward(Model *model, Vector *labels) {
         }
 
         LayerGradients *grad = backward_layer(current_layer, layer_context->inputs, layer_context->logits, &backprop_context);
+        if (dL_dA_calculated_through_loss) 
+            destroy_vector(dL_dA);
         model->gradients[i][model->current_grads_accumulated] = grad;
         dL_dA = model->gradients[i][model->current_grads_accumulated]->d_inputs;
 
