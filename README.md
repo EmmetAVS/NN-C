@@ -34,3 +34,4 @@
 ## Notes
 - **Not extremely optimized, no GPU usage**
 - **Does have memory leaks in the larger training loop**
+- **Still continuing to work on fixing memory leaks and adding additional/more complex optimizers/features, along with examples**
