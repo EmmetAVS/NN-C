@@ -14,3 +14,23 @@ target_compile_options(nnlib PRIVATE -Wall)
 enable_testing()
 
 add_subdirectory(test)
+
+file(GLOB EXAMPLE_DIRS RELATIVE "${CMAKE_SOURCE_DIR}/examples" "${CMAKE_SOURCE_DIR}/examples/*")
+
+foreach(example_dir ${EXAMPLE_DIRS})
+    if(IS_DIRECTORY "${CMAKE_SOURCE_DIR}/examples/${example_dir}")
+        file(GLOB EXAMPLE_SOURCES "${CMAKE_SOURCE_DIR}/examples/${example_dir}/*.c")
+
+        if(EXAMPLE_SOURCES)
+            set(target_name "example_${example_dir}")
+
+            add_executable(${target_name} ${EXAMPLE_SOURCES})
+            target_include_directories(${target_name} PRIVATE include)
+            target_link_libraries(${target_name} PRIVATE nnlib)
+
+            set_target_properties(${target_name} PROPERTIES
+                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/examples/${example_dir}"
+            )
+        endif()
+    endif()
+endforeach()

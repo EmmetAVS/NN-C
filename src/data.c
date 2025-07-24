@@ -23,11 +23,17 @@ static int count_lines(FILE *file) {
     return lines;
 }
 
-static char *read_full_line(FILE *file) {
-    if (file == NULL) return NULL;
+static char *read_full_line(FILE *file, char *buffer, size_t *buffer_size) {
+    if (file == NULL) {
+        free(buffer);
+        return NULL;
+    }
 
     long start_pos = ftell(file);
-    if (start_pos == -1L) return NULL;
+    if (start_pos == -1L) {
+        free(buffer);
+        return NULL;
+    }
 
     int cur_char;
     size_t length = 0;
@@ -41,15 +47,21 @@ static char *read_full_line(FILE *file) {
     }
 
     if (length == 0 && cur_char == EOF) {
+        free(buffer);
         return NULL;
     }
 
     fseek(file, start_pos, SEEK_SET);
 
-    char *buffer = malloc(length + 1);
-    if (!buffer) return NULL;
+    if (*buffer_size < length + 1) {
+        free(buffer);
+        buffer = (char *) malloc(sizeof(char) * (length + 1));
+        *buffer_size = length + 1;
+    }
+    if (!buffer) 
+        return NULL;
 
-    if (fread(buffer, 1, length, file) != length) {
+    if (fread(buffer, sizeof(char), length, file) != length) {
         free(buffer);
         return NULL;
     }
@@ -142,9 +154,11 @@ CSVOutput *read_csv(const char *filename, CSVOutputType output_type) {
     int lines = count_lines(file);
     fseek(file, 0, SEEK_SET);
 
-    char *line = read_full_line(file);
+    size_t current_buffer_size = 1;
+    char *buffer = (char *)malloc(sizeof(char) * current_buffer_size);
+    buffer = read_full_line(file, buffer, &current_buffer_size);
 
-    if (line == NULL) {
+    if (buffer == NULL) {
         return NULL;
     }
 
@@ -156,33 +170,32 @@ CSVOutput *read_csv(const char *filename, CSVOutputType output_type) {
 
     int i = 0;
     int cols = 1;
-    while (line[i] != '\0') {
-        if (line[i] == ',') cols++;
+    while (buffer[i] != '\0') {
+        if (buffer[i] == ',') cols++;
         i++;
     }
 
     output->cols = cols;
-    output->col_names = parse_strings_from_line(line, cols);
-    free(line);
-    line = read_full_line(file);
+    output->col_names = parse_strings_from_line(buffer, cols);
+    buffer = read_full_line(file, buffer, &current_buffer_size);
     
     size_t cur_row = 0;
-    while (line != NULL) {
+    while (buffer != NULL) {
 
         if (output_type == INTEGER) {
-            output->data[cur_row] = parse_ints_from_line(line, output->cols);
+            output->data[cur_row] = parse_ints_from_line(buffer, output->cols);
         } else if (output_type == STRING) {
-            output->data[cur_row] = parse_strings_from_line(line, output->cols);
+            output->data[cur_row] = parse_strings_from_line(buffer, output->cols);
         } else if (output_type == FLOAT) {
-            output->data[cur_row] = parse_floats_from_line(line, output->cols);
+            output->data[cur_row] = parse_floats_from_line(buffer, output->cols);
         }
         cur_row++;
 
-        free(line);
-        line = read_full_line(file);
+        buffer = read_full_line(file, buffer, &current_buffer_size);
 
     }
 
+    free(buffer);
     fclose(file);
     return output;
 
