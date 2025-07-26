@@ -17,6 +17,10 @@ add_subdirectory(test)
 
 file(GLOB EXAMPLE_DIRS RELATIVE "${CMAKE_SOURCE_DIR}/examples" "${CMAKE_SOURCE_DIR}/examples/*")
 
+if(UNIX)
+    set(EXTRA_LIBS m)
+endif()
+
 foreach(example_dir ${EXAMPLE_DIRS})
     if(IS_DIRECTORY "${CMAKE_SOURCE_DIR}/examples/${example_dir}")
         file(GLOB EXAMPLE_SOURCES "${CMAKE_SOURCE_DIR}/examples/${example_dir}/*.c")
@@ -26,7 +30,7 @@ foreach(example_dir ${EXAMPLE_DIRS})
 
             add_executable(${target_name} ${EXAMPLE_SOURCES})
             target_include_directories(${target_name} PRIVATE include)
-            target_link_libraries(${target_name} PRIVATE nnlib)
+            target_link_libraries(${target_name} PRIVATE nnlib ${EXTRA_LIBS})
 
             set_target_properties(${target_name} PROPERTIES
                 RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/examples/${example_dir}"
