@@ -22,7 +22,7 @@
    model_zero_grads(model);
    model_set_max_grads(model, batch_size);
 
-   for (int i = 0; i < samples; ++i) {
+   for (int i = 0; i < batch_size; ++i) {
       model_forward(model, inputs[i]);
       model_backward(model, labels[i]);
    }
