@@ -18,17 +18,25 @@
    ```
    Model *model = ...;
    Optimizer *opt = ...;
+
+   for (int epoch = 0; epoch < epochs; epoch ++) {
+
+      for (int batch = 0; batch < batches; batch ++) {
+      
+         model_zero_grads(model);
+         model_set_max_grads(model, batch_size);
+      
+         for (int i = 0; i < batch_size; ++i) {
+            model_forward(model, inputs[batch][i]);
+            model_backward(model, labels[batch][i]);
+         }
+      
+         model_average_grads(model);
+         model_step(model, opt);
    
-   model_zero_grads(model);
-   model_set_max_grads(model, batch_size);
+      }
 
-   for (int i = 0; i < batch_size; ++i) {
-      model_forward(model, inputs[i]);
-      model_backward(model, labels[i]);
    }
-
-   model_average_grads(model);
-   model_step(model, opt);
    ```
 
 ## Notes
