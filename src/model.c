@@ -88,7 +88,16 @@ static Vector *model_inference(Model *model, Vector *inputs) {
 
     for (size_t i = 0; i < model->num_layers; i++) {
 
-        Vector *placeholder = forward_layer(model->layers[i], current_output, false);
+        Layer *layer = model->layers[i];
+
+
+        if (i != model->num_layers - 1 && layer->context && layer->context->activated_output) {
+            destroy_vector(layer->context->activated_output);
+            layer->context->activated_output = NULL;
+        }
+
+        Vector *placeholder = forward_layer(layer, current_output, false);
+        
         if (current_output != inputs) 
             destroy_vector(current_output);
         current_output = placeholder;
@@ -106,6 +115,10 @@ static Vector *model_forward_with_grad(Model *model, Vector *inputs) {
 
         Layer *layer = model->layers[i];
 
+        if (i != model->num_layers - 1 && layer->context && layer->context->activated_output) {
+            destroy_vector(layer->context->activated_output);
+            layer->context->activated_output = NULL;
+        }
         Vector *placeholder = forward_layer(layer, current_output, true);
         current_output = placeholder;
         

@@ -52,8 +52,9 @@ void test_training_loop_reduces_loss() {
         model_set_max_grads(model, samples);
 
         for (int i = 0; i < samples; ++i) {
-            model_forward(model, inputs[i]);
+            Vector *output = model_forward(model, inputs[i]);
             model_backward(model, labels[i]);
+            destroy_vector(output);
         }
 
         model_average_grads(model);
