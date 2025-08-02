@@ -31,6 +31,8 @@ foreach(example_dir ${EXAMPLE_DIRS})
             add_executable(${target_name} ${EXAMPLE_SOURCES})
             target_include_directories(${target_name} PRIVATE include)
             target_link_libraries(${target_name} PRIVATE nnlib ${EXTRA_LIBS})
+            
+            target_compile_options(${target_name} PRIVATE -g -O0)
 
             set_target_properties(${target_name} PROPERTIES
                 RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/examples/${example_dir}"

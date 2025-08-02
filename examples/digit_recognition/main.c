@@ -1,14 +1,56 @@
 #include "model.h"
 #include "optimizer.h"
 #include "data.h"
+#include "utils.h"
 #include <stdio.h>
+#include <stdlib.h>
+
+void load_train(CSVOutput *train, Vector ****inputs, Vector ****labels, size_t batches, size_t batch_size, size_t total_data_len, size_t pixel_count) {
+    *inputs = (Vector ***)calloc(batches, sizeof(Vector **));
+    *labels = (Vector ***)calloc(batches, sizeof(Vector **));
+
+    for (size_t i = 0; i < batches; i ++) {
+
+        (*inputs)[i] = (Vector **)calloc(batch_size, sizeof(Vector *));
+        (*labels)[i] = (Vector **)calloc(batch_size, sizeof(Vector *));
+
+    }
+
+    for (size_t batch = 0; batch < batches; batch++) {
+
+        for (size_t j = 0; j < batch_size; j ++) {
+            size_t i = batch * batch_size + j;
+            if (i >= total_data_len) break;
+
+            Vector *curr = create_vector(pixel_count);
+
+            for (size_t p = 0; p < pixel_count; p ++) {
+
+                curr->data[p] = (float) (((int **) train->data)[i][p + 1]) / 255.0f;
+
+            }
+
+            const int label = (((int **) train->data)[i][0]);
+            if (label > 9 || label < 0) {
+                printf("Label: %d @ index %zu\n", label, i);
+            }
+            (*inputs)[batch][j] = curr;
+            (*labels)[batch][j] = create_vector(10);
+            (*labels)[batch][j]->data[label] = 1.f;
+
+        }
+
+    }
+}
 
 int main() {
 
-    const int epochs = 2;
-    const int batch_size = 128;
+    const char *data_path = "data/mnist.csv";
+    const int epochs = 10;
+    const int batch_size = 32;
 
-    CSVOutput *train = read_csv("data/mnist_train.csv", INTEGER);
+    printf("Loading train dataset %s...\n", data_path);
+    CSVOutput *train = read_csv(data_path, INTEGER);
     if (!train) {
         printf("Train dataset failed to load.\n");
         return 0;
@@ -16,10 +58,12 @@ int main() {
     
     const int pixel_count = train->cols - 1; // - 1 because of labels column
 
-    int total_data_len = (int) train->data_rows;
+    const float test_percent = 0.2;
+    int total_data_len = (int) (train->data_rows * (1 - test_percent));
+    const int test_count = train->data_rows - total_data_len;
     const int batches = total_data_len / batch_size;
 
-    /*
+    
     //Setup model
     #define NUM_LAYERS 3
 
@@ -34,44 +78,126 @@ int main() {
     Model *model = create_model(shape, activation_functions, NUM_LAYERS, empty_loss);
     model_set_calculate_grads(model, true);
 
-    Optimizer *o = create_SGD_optimizer(1.f);
+    Optimizer *opt = create_SGD_optimizer(0.01f);
 
-    Vector *inputs[batches][batch_size], *labels[batches][batch_size];
-    for (size_t batch = 0; batch < batches; batch++) {
+    //Vector *inputs[batches][batch_size], *labels[batches][batch_size];
+    Vector ***inputs, ***labels;
+    load_train(train, &inputs, &labels, batches, batch_size, total_data_len, pixel_count);
 
-        for (size_t i = 0; i < total_data_len, i < (batch_size * (i + 1)); i ++) {
-            Vector *curr = create_vector(pixel_count);
+    Vector **test_inputs = (Vector **)malloc(sizeof(Vector *) * test_count);
+    Vector **test_labels = (Vector **)malloc(sizeof(Vector *) * test_count);
+    for (size_t i = total_data_len; i < train->data_rows; i ++) {
 
-            for (size_t p = 0; p < pixel_count; p ++) {
+        size_t index = i - total_data_len;
 
-                curr->data[p] = (float) (((int **) train->data)[i][p + 1]);
+        Vector *curr = create_vector(pixel_count);
+        for (size_t p = 0; p < pixel_count; p ++) {
 
-            }
-
-            const int label = (((int **) train->data)[i][0]);
-            inputs[batch][i] = curr;
-            labels[batch][i] = create_vector(10);
-            labels[batch][i]->data[label] = 1.f;
+            curr->data[p] = (float) (((int **) train->data)[i][p + 1]) / 255.0f;
 
         }
 
+        const int label = (((int **) train->data)[i][0]);
+        test_inputs[index] = curr;
+        test_labels[index] = create_vector(10);
+        test_labels[index]->data[label] = 1.f;
+
     }
-    */
+    
     
     printf("Training with %d epochs, %d batch size, and %d batches across %d examples\n", epochs, batch_size, batches, total_data_len);
 
+    
+    for (int epoch = 0; epoch < epochs; ++epoch) {
 
-    /*
-    for (size_t batch = 0; batch < batches; batch++) {
+        BASE_TYPE total_loss = 0;
+        size_t data_used = 0;
 
-        for (size_t i = 0; i < total_data_len, i < (batch_size * (i + 1)); i ++) {
+        for (int i = 0; i < batches; ++i) {
+            
+            //printf("Training batch %d in epoch %d\n", i, epoch);
+            model_zero_grads(model);
+            model_set_max_grads(model, batch_size);
 
-            destroy_vector(inputs[batch][i]);
-            destroy_vector(labels[batch][i]);
+            for (int b = 0; b < batch_size; b ++) {
+                if (inputs[i][b] && labels[i][b]) {
+
+                    Vector *output = model_forward(model, inputs[i][b]);
+                    total_loss += cross_entropy_loss(output, labels[i][b]);
+                    data_used += 1;
+                    model_backward(model, labels[i][b]);
+                    destroy_vector(output);
+
+                } else {
+                    printf("Ignoring input/label at batch %d and batch_index %d (input: %p, label: %p)\n", i, b, inputs[i][b], labels[i][b]);
+                }
+            }
+
+            model_average_grads(model);
+            model_step(model, opt);
 
         }
+        
+        BASE_TYPE averaged_loss = total_loss / (data_used);
+        printf("Loss: %f @ epoch #%d\n", averaged_loss, epoch);
     }
-    */
+
+    //Test model
+
+    model_set_calculate_grads(model, false);
+
+    int successes = 0;
+    BASE_TYPE total_loss = 0;
+
+    for (size_t i = 0; i < test_count; i ++) {
+
+        if (!test_inputs[i] || !test_labels[i]) continue;
+        Vector *output = model_forward(model, test_inputs[i]);
+        size_t index = argmax(output);
+        size_t label_index = argmax(test_labels[i]);
+        BASE_TYPE loss = cross_entropy_loss(output, test_labels[i]);
+
+        if (label_index == index) {
+            successes += 1;
+        }
+
+        total_loss += loss;
+        destroy_vector(output);
+
+    }
+
+    BASE_TYPE averaged_loss = total_loss / test_count;
+
+    printf("Testing: \nAveraged Loss: %f\nSuccesses: %d/%d\n", averaged_loss, successes, test_count);
+
+    //Cleanup
+    for (size_t batch = 0; batch < batches; batch++) {
+
+        for (size_t j = 0; j < batch_size; j ++) {
+            size_t i = batch * batch_size + j;
+            if (i >= total_data_len) break;
+
+            destroy_vector(inputs[batch][j]);
+            destroy_vector(labels[batch][j]);
+
+        }
+
+        free(inputs[batch]);
+        free(labels[batch]);
+    }
+
+    free(inputs);
+    free(labels);
+
+    for (size_t i = 0; i < test_count; i ++) {
+        destroy_vector(test_inputs[i]);
+        destroy_vector(test_labels[i]);
+    }
+    free(test_inputs);
+    free(test_labels);
+    
+    destroy_model(model);
+    destroy_optimizer(opt);
     destroy_csv_output(train);
     return 0;
 
