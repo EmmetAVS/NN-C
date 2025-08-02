@@ -80,7 +80,6 @@ int main() {
 
     Optimizer *opt = create_SGD_optimizer(0.01f);
 
-    //Vector *inputs[batches][batch_size], *labels[batches][batch_size];
     Vector ***inputs, ***labels;
     load_train(train, &inputs, &labels, batches, batch_size, total_data_len, pixel_count);
 
@@ -115,7 +114,6 @@ int main() {
 
         for (int i = 0; i < batches; ++i) {
             
-            //printf("Training batch %d in epoch %d\n", i, epoch);
             model_zero_grads(model);
             model_set_max_grads(model, batch_size);
 
@@ -128,8 +126,6 @@ int main() {
                     model_backward(model, labels[i][b]);
                     destroy_vector(output);
 
-                } else {
-                    printf("Ignoring input/label at batch %d and batch_index %d (input: %p, label: %p)\n", i, b, inputs[i][b], labels[i][b]);
                 }
             }
 
@@ -169,6 +165,12 @@ int main() {
     BASE_TYPE averaged_loss = total_loss / test_count;
 
     printf("Testing: \nAveraged Loss: %f\nSuccesses: %d/%d\n", averaged_loss, successes, test_count);
+    /*
+    should output to ~
+    Testing:
+    Averaged Loss: 0.249387
+    Successes: 7790/8400
+    */
 
     //Cleanup
     for (size_t batch = 0; batch < batches; batch++) {
