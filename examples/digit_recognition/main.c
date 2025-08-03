@@ -55,6 +55,10 @@ int main() {
         printf("Train dataset failed to load.\n");
         return 0;
     }
+
+    Shuffler *shuffler = create_shuffler(train->data_rows);
+    apply_shuffler(shuffler, train->data, sizeof(void*));
+    destroy_shuffler(shuffler);
     
     const int pixel_count = train->cols - 1; // - 1 because of labels column
 
@@ -135,7 +139,7 @@ int main() {
         }
         
         BASE_TYPE averaged_loss = total_loss / (data_used);
-        printf("Loss: %f @ epoch #%d\n", averaged_loss, epoch);
+        printf("Loss: %f @ epoch #%d\n", averaged_loss, epoch + 1);
     }
 
     //Test model

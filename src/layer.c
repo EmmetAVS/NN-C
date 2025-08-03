@@ -14,6 +14,7 @@ Layer *create_layer(size_t input_size, size_t output_size, ActivationFunction ac
     l->weights = create_matrix(output_size, input_size);
 
     BASE_TYPE weight_scale = sqrt(2.0 / (input_size + output_size));
+    HANDLE_SRAND()
     
     for (size_t i = 0; i < output_size; i++) {
         for (size_t j = 0; j < input_size; j++) {

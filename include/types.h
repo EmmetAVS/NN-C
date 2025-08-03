@@ -9,6 +9,12 @@
 #define UNDEFINED NAN
 #define EPSILON 1e-9
 
+#define HANDLE_SRAND()\
+    if (!_state.srand_called) {\
+        unsigned int seed = _state.srand_seed_set ? _state.srand_seed : (unsigned int) _time();\
+        srand(seed);\
+    }\
+
 typedef struct Vector {
 
     BASE_TYPE *data;
@@ -21,6 +27,15 @@ typedef struct Matrix {
     size_t rows;
     size_t cols;
 } Matrix;
+
+typedef struct State {
+    bool srand_called;
+    bool srand_seed_set;
+    unsigned int srand_seed;
+} State;
+
+extern State _state;
+unsigned int _time();
 
 Vector *create_vector(size_t length);
 void destroy_vector(Vector *vector);

@@ -1,5 +1,6 @@
 #include "types.h"
 #include <stdlib.h>
+#include <time.h>
 
 Vector *create_vector(size_t length) {
 
@@ -61,3 +62,12 @@ BASE_TYPE matrix_set_value_at(Matrix *m, int rowIndex, int colIndex, BASE_TYPE v
     return old_value;
 
 }
+
+unsigned int _time() {
+    return (unsigned int) time(NULL);
+}
+
+State _state = {
+    .srand_called = false,
+    .srand_seed_set = false
+};
