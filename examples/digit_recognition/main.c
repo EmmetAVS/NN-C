@@ -2,6 +2,7 @@
 #include "optimizer.h"
 #include "data.h"
 #include "utils.h"
+#include "serialization.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -43,9 +44,52 @@ void load_train(CSVOutput *train, Vector ****inputs, Vector ****labels, size_t b
     }
 }
 
+void train_model(Model *model, const int epochs, const int batch_size, const int batches, const int total_data_len, Vector ***inputs, Vector ***labels) {
+    model_set_calculate_grads(model, true);
+
+    Optimizer *opt = create_SGD_optimizer(0.01f);
+    
+    printf("Training with %d epochs, %d batch size, and %d batches across %d examples\n", epochs, batch_size, batches, total_data_len);
+
+    
+    for (int epoch = 0; epoch < epochs; ++epoch) {
+
+        BASE_TYPE total_loss = 0;
+        size_t data_used = 0;
+
+        for (int i = 0; i < batches; ++i) {
+            
+            model_zero_grads(model);
+            model_set_max_grads(model, batch_size);
+
+            for (int b = 0; b < batch_size; b ++) {
+                if (inputs[i][b] && labels[i][b]) {
+
+                    Vector *output = model_forward(model, inputs[i][b]);
+                    total_loss += cross_entropy_loss(output, labels[i][b]);
+                    data_used += 1;
+                    model_backward(model, labels[i][b]);
+                    destroy_vector(output);
+
+                }
+            }
+
+            model_average_grads(model);
+            model_step(model, opt);
+
+        }
+        
+        BASE_TYPE averaged_loss = total_loss / (data_used);
+        printf("Loss: %f @ epoch #%d\n", averaged_loss, epoch + 1);
+    }
+    
+    destroy_optimizer(opt);
+}
+
 int main() {
 
     const char *data_path = "data/mnist.csv";
+    const char *model_path = ".model";
     const int epochs = 10;
     const int batch_size = 32;
 
@@ -80,10 +124,7 @@ int main() {
     LossFunction empty_loss = {.backward = NULL, .forward = NULL};
     ActivationFunction activation_functions[NUM_LAYERS] = {activation_relu, activation_relu, activation_loss_softmax_cross_entropy};
     Model *model = create_model(shape, activation_functions, NUM_LAYERS, empty_loss);
-    model_set_calculate_grads(model, true);
-
-    Optimizer *opt = create_SGD_optimizer(0.01f);
-
+    
     Vector ***inputs, ***labels;
     load_train(train, &inputs, &labels, batches, batch_size, total_data_len, pixel_count);
 
@@ -106,40 +147,10 @@ int main() {
         test_labels[index]->data[label] = 1.f;
 
     }
-    
-    
-    printf("Training with %d epochs, %d batch size, and %d batches across %d examples\n", epochs, batch_size, batches, total_data_len);
 
-    
-    for (int epoch = 0; epoch < epochs; ++epoch) {
-
-        BASE_TYPE total_loss = 0;
-        size_t data_used = 0;
-
-        for (int i = 0; i < batches; ++i) {
-            
-            model_zero_grads(model);
-            model_set_max_grads(model, batch_size);
-
-            for (int b = 0; b < batch_size; b ++) {
-                if (inputs[i][b] && labels[i][b]) {
-
-                    Vector *output = model_forward(model, inputs[i][b]);
-                    total_loss += cross_entropy_loss(output, labels[i][b]);
-                    data_used += 1;
-                    model_backward(model, labels[i][b]);
-                    destroy_vector(output);
-
-                }
-            }
-
-            model_average_grads(model);
-            model_step(model, opt);
-
-        }
-        
-        BASE_TYPE averaged_loss = total_loss / (data_used);
-        printf("Loss: %f @ epoch #%d\n", averaged_loss, epoch + 1);
+    if (!load_model_params(model, model_path)) {
+        printf("No model parameters found, training model\n");
+        train_model(model, epochs, batch_size, batches, total_data_len, inputs, labels);
     }
 
     //Test model
@@ -201,9 +212,10 @@ int main() {
     }
     free(test_inputs);
     free(test_labels);
+
+    write_model_params(model, model_path);
     
     destroy_model(model);
-    destroy_optimizer(opt);
     destroy_csv_output(train);
     return 0;
 
