@@ -57,3 +57,31 @@ jobs:
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       run: ctest --build-config ${{ matrix.build_type }}
+
+    - name: Run all example executables
+      shell: bash
+      run: |
+        set -e
+
+        EXAMPLES_DIR="./examples"
+
+        for dir in "$EXAMPLES_DIR"/*/; do
+          dir_name=$(basename "$dir")
+          cd "./examples/$dir_name"
+
+          if [[ "$OS" == "Windows_NT" ]]; then
+            exe="example_${dir_name}.exe"
+          else
+            exe="example_${dir_name}"
+          fi
+
+          if [[ -f "$exe" ]]; then
+            echo "Running $exe"
+            "./$exe"
+          else
+            echo "Executable '$exe' not found for $dir_name"
+          fi
+
+          cd "../.."
+
+        done
