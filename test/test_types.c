@@ -3,6 +3,8 @@
 #include <stdio.h>
 
 int main() {
+    
+    nnlib_startup();
 
     //Test Vector Instantiation/Destruction
     Vector *v = create_vector(10);

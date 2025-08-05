@@ -160,6 +160,9 @@ void test_loss_decreases_after_update() {
 }
 
 int main() {
+    
+    nnlib_startup();
+    
     test_create_destroy_layer_gradients();
     test_forward_backward_update();
     test_loss_decreases_after_update();

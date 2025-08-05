@@ -49,6 +49,9 @@ void test_model_forward_backward() {
 }
 
 int main() {
+    
+    nnlib_startup();
+    
     test_model_forward_backward();
     return 0;
 }

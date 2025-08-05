@@ -44,4 +44,6 @@ void destroy_matrix(Matrix *matrix);
 BASE_TYPE matrix_get_value_at(Matrix *m, int rowIndex, int colIndex);
 BASE_TYPE matrix_set_value_at(Matrix *m, int rowIndex, int colIndex, BASE_TYPE value);
 
+bool nnlib_startup();
+
 #endif

@@ -60,6 +60,8 @@ Model *train_model(size_t **shape, ActivationFunction *activations) {
 }
 
 int main() {
+    
+    nnlib_startup();
 
     const char *filename = "test_serialization_model_params";
 

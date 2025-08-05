@@ -1,6 +1,7 @@
 #include "types.h"
 #include <stdlib.h>
 #include <time.h>
+#include "activations.h"
 
 Vector *create_vector(size_t length) {
 
@@ -71,3 +72,11 @@ State _state = {
     .srand_called = false,
     .srand_seed_set = false
 };
+
+bool nnlib_startup() {
+
+    _init_activations();
+
+    return true;
+
+}

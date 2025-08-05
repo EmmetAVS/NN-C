@@ -46,6 +46,8 @@ int test_softmax_cross_entropy() {
 }
 
 int main() {
+    
+    nnlib_startup();
 
     //Test RELU
     BASE_TYPE ex_relu_logits[LENGTH] = {-0.1f, 0.2f, 0.4f, 0.1f};

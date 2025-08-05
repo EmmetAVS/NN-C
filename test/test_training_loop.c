@@ -95,6 +95,9 @@ void test_training_loop_reduces_loss() {
 }
 
 int main() {
+    
+    nnlib_startup();
+    
     test_training_loop_reduces_loss();
     return 0;
 }

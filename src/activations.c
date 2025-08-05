@@ -140,18 +140,18 @@ const ActivationLossFunction function_activation_loss_softmax_cross_entropy = {
     .backward = softmax_with_cross_entropy_loss_backward
 };
 
-ActivationFunction activation_relu = {
-    .type = RAW,
-    .function.activation_function = function_activation_relu
-};
+ActivationFunction activation_relu;
+ActivationFunction activation_sigmoid;
+ActivationFunction activation_loss_softmax_cross_entropy;
 
-ActivationFunction activation_sigmoid = {
-    .type = RAW,
-    .function.activation_function = function_activation_sigmoid
-};
+void _init_activations() {
 
-ActivationFunction activation_loss_softmax_cross_entropy = {
-    .type = WITH_LOSS,
-    .function.activation_loss_function = function_activation_loss_softmax_cross_entropy
-};
+    activation_relu.type = RAW;
+    activation_relu.function.activation_function = function_activation_relu;
 
+    activation_sigmoid.type = RAW;
+    activation_sigmoid.function.activation_function = function_activation_sigmoid;
+
+    activation_loss_softmax_cross_entropy.type = WITH_LOSS;
+    activation_loss_softmax_cross_entropy.function.activation_loss_function = function_activation_loss_softmax_cross_entropy;
+}

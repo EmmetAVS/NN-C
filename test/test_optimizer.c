@@ -39,6 +39,9 @@ void test_create_and_destroy_optimizer() {
 }
 
 int main() {
+    
+    nnlib_startup();
+    
     test_create_and_destroy_optimizer();
     return 0;
 }

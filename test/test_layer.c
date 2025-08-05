@@ -5,6 +5,8 @@
 #include <stdio.h>
 
 int main() {
+    
+    nnlib_startup();
 
     Layer *l = create_layer(10, 5, activation_loss_softmax_cross_entropy);
 

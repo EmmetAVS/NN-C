@@ -47,4 +47,6 @@ extern ActivationFunction activation_relu;
 extern ActivationFunction activation_sigmoid;
 extern ActivationFunction activation_loss_softmax_cross_entropy;
 
+void _init_activations();
+
 #endif

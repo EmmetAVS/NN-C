@@ -16,6 +16,8 @@ Matrix *average_matrices(Matrix **matrices, size_t length);
 */
 
 int main() {
+    
+    nnlib_startup();
 
     const int size = 3;
     const BASE_TYPE values[] = {5.f, 8.f, 11.f}; 

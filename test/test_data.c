@@ -1,7 +1,10 @@
 #include "data.h"
+#include "types.h"
 #include "tests.h"
 
 int main() {
+    
+    nnlib_startup();
 
     CSVOutput *output = read_csv("../../examples/digit_recognition/data/mnist.csv", FLOAT);
     printf("output: %p\n", output);

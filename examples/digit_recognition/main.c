@@ -167,6 +167,8 @@ BASE_TYPE test_model(Model *model, char *filename) {
 }
 
 int main(const int argc, char *argv[]) {
+    
+    nnlib_startup();
 
     const char *data_path = "data/mnist.csv";
     const char *model_path = ".model";
