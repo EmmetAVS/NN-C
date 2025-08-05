@@ -5,6 +5,7 @@
 !*.c
 !*.h
 !*.csv
+!*.py
 !CMakeLists.txt
 !**/CMakeLists.txt
 !.gitignore

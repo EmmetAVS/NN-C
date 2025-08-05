@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+bool print_tests = true;
+
 void load_train(CSVOutput *train, Vector ****inputs, Vector ****labels, size_t batches, size_t batch_size, size_t total_data_len, size_t pixel_count) {
     *inputs = (Vector ***)calloc(batches, sizeof(Vector **));
     *labels = (Vector ***)calloc(batches, sizeof(Vector **));
@@ -86,7 +88,85 @@ void train_model(Model *model, const int epochs, const int batch_size, const int
     destroy_optimizer(opt);
 }
 
-int main() {
+BASE_TYPE test_model(Model *model, char *filename) {
+
+    printf("Testing Model on file %s\n", filename);
+    CSVOutput *test = read_csv(filename, INTEGER);
+
+    if (!test) {
+        printf("Test dataset %s failed to load.\n", filename);
+        return 0.f;
+    }
+
+    const size_t pixel_count = test->cols - 1;
+
+    size_t test_count = test->data_rows;
+    Vector **test_inputs = (Vector **)malloc(sizeof(Vector *) * test_count);
+    Vector **test_labels = (Vector **)malloc(sizeof(Vector *) * test_count);
+    int **test_data = ((int **) test->data);
+
+    for (size_t i = 0; i < test_count; i ++) {
+
+        Vector *curr = create_vector(pixel_count);
+        for (size_t p = 0; p < pixel_count; p ++) {
+
+            curr->data[p] = (float) (test_data[i][p + 1]) / 255.0f;
+
+        }
+
+        const int label = (test_data[i][0]);
+        test_inputs[i] = curr;
+        test_labels[i] = create_vector(10);
+        test_labels[i]->data[label] = 1.f;
+
+    }
+
+    model_set_calculate_grads(model, false);
+
+    int successes = 0;
+    BASE_TYPE total_loss = 0;
+
+    for (size_t i = 0; i < test_count; i ++) {
+
+        if (!test_inputs[i] || !test_labels[i]) continue;
+        Vector *output = model_forward(model, test_inputs[i]);
+        size_t index = argmax(output);
+        size_t label_index = argmax(test_labels[i]);
+        BASE_TYPE loss = cross_entropy_loss(output, test_labels[i]);
+
+        if (label_index == index) {
+            successes += 1;
+        }
+        
+        if (print_tests) {
+            printf("At index %zu, model outputted %zu with label %zu\n", i, index, label_index);
+        }
+
+        total_loss += loss;
+        destroy_vector(output);
+
+    }
+
+    BASE_TYPE averaged_loss = total_loss / test_count;
+
+    printf("Testing: \nAveraged Loss: %f\nSuccesses: %d/%zu\n", averaged_loss, successes, test_count);
+
+    for (size_t i = 0; i < test_count; i ++) {
+
+        destroy_vector(test_inputs[i]);
+        destroy_vector(test_labels[i]);
+
+    }
+
+    free(test_inputs);
+    free(test_labels);
+    destroy_csv_output(test);
+
+    return averaged_loss;
+
+}
+
+int main(const int argc, char *argv[]) {
 
     const char *data_path = "data/mnist.csv";
     const char *model_path = ".model";
@@ -186,6 +266,13 @@ int main() {
     Averaged Loss: 0.249387
     Successes: 7790/8400
     */
+
+    //Check to see if there are additional testing file(s) provided
+    for (int i = 1; i < argc; i ++) {
+        
+        test_model(model, argv[i]);
+
+    }
 
     //Cleanup
     for (size_t batch = 0; batch < batches; batch++) {
