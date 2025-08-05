@@ -4,6 +4,10 @@
 #include "loss.h"
 #include "layer.h"
 
+#define SAMPLES 4
+#define EPOCHS 200
+#define PRINT_EVERY 50
+
 Vector *create_vector_from_array(BASE_TYPE *data, size_t size) {
     Vector *v = create_vector(size);
     for (size_t i = 0; i < size; ++i)
@@ -23,10 +27,6 @@ void test_training_loop_reduces_loss() {
         {0}, {1}, {1}, {0}
     };
 
-    const int samples = 4;
-    const int epochs = 200;
-    const int print_every = 50;
-
     size_t *shape[2];
     shape[0] = malloc(2 * sizeof(size_t));
     shape[1] = malloc(2 * sizeof(size_t));
@@ -39,19 +39,19 @@ void test_training_loop_reduces_loss() {
 
     Optimizer *opt = create_SGD_optimizer(1.f);
 
-    Vector *inputs[samples], *labels[samples];
-    for (int i = 0; i < samples; ++i) {
+    Vector *inputs[SAMPLES], *labels[SAMPLES];
+    for (int i = 0; i < SAMPLES; ++i) {
         inputs[i] = create_vector_from_array(x_data[i], 2);
         labels[i] = create_vector_from_array(y_data[i], 1);
     }
 
     BASE_TYPE prev_loss = 0;
 
-    for (int epoch = 0; epoch < epochs; ++epoch) {
+    for (int epoch = 0; epoch < EPOCHS; ++epoch) {
         model_zero_grads(model);
-        model_set_max_grads(model, samples);
+        model_set_max_grads(model, SAMPLES);
 
-        for (int i = 0; i < samples; ++i) {
+        for (int i = 0; i < SAMPLES; ++i) {
             Vector *output = model_forward(model, inputs[i]);
             model_backward(model, labels[i]);
             destroy_vector(output);
@@ -60,16 +60,16 @@ void test_training_loop_reduces_loss() {
         model_average_grads(model);
         model_step(model, opt);
 
-        if (epoch % print_every == 0 || epoch == epochs - 1) {
+        if (epoch % PRINT_EVERY == 0 || epoch == EPOCHS - 1) {
             BASE_TYPE total_loss = 0;
-            for (int i = 0; i < samples; ++i) {
+            for (int i = 0; i < SAMPLES; ++i) {
                 model_set_calculate_grads(model, false);
                 Vector *output = model_forward(model, inputs[i]);
                 model_set_calculate_grads(model, true);
                 total_loss += mean_squared_error_loss.forward(output, labels[i]);
                 destroy_vector(output);
             }
-            total_loss /= samples;
+            total_loss /= SAMPLES;
 
             print_loss(total_loss, epoch);
 
@@ -82,7 +82,7 @@ void test_training_loop_reduces_loss() {
         }
     }
 
-    for (int i = 0; i < samples; ++i) {
+    for (int i = 0; i < SAMPLES; ++i) {
         destroy_vector(inputs[i]);
         destroy_vector(labels[i]);
     }
