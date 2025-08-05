@@ -64,15 +64,12 @@ jobs:
         set -e
         EXAMPLES_DIR="${{ github.workspace }}/examples"
 
-        if [[ "$RUNNER_OS" == "Windows" ]]; then
-          find "$EXAMPLES_DIR" -type f -name 'example_*.exe' | while read exe; do
-            echo "Running $exe"
+        for dir in "$EXAMPLES_DIR"/*/; do
+          dir_name=$(basename "$dir")
+          exe="$dir/example_${dir_name}.exe"
+          if [[ -f "$exe" ]]; then
             "$exe"
-          done
-        else
-          find "$EXAMPLES_DIR" -type f -name 'example_*' | while read exe; do
-            chmod +x "$exe"
-            echo "Running $exe"
-            "$exe"
-          done
-        fi
+          else
+            echo "Executable not found for $dir_name"
+          fi
+        done
