@@ -8,12 +8,13 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 include_directories(include)
 
-if(MSVC)
-  target_compile_options(nnlib PRIVATE /wd2099)
-endif()
 
 file(GLOB SRC_FILES src/*.c)
 add_library(nnlib STATIC ${SRC_FILES})
+
+if(MSVC)
+  target_compile_options(nnlib PRIVATE /wd2099)
+endif()
 
 target_compile_options(nnlib PRIVATE -Wall)
 
