@@ -66,10 +66,10 @@ jobs:
 
         for dir in "$EXAMPLES_DIR"/*/; do
           dir_name=$(basename "$dir")
-          exe="$dir/example_${dir_name}.exe"
+          exe="examples/$dir/example_${dir_name}.exe"
           if [[ -f "$exe" ]]; then
             "$exe"
           else
-            echo "Executable not found for $dir_name"
+            echo "Executable '$exe' not found for $dir_name"
           fi
         done
