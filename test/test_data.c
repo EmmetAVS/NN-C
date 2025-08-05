@@ -3,7 +3,7 @@
 
 int main() {
 
-    CSVOutput *output = read_csv("/mnt/c/Users/aarus/Downloads/mnist_test.csv", FLOAT);
+    CSVOutput *output = read_csv("../../examples/digit_recognition/data/mnist.csv", FLOAT);
     printf("output: %p\n", output);
 
     printf("Rows: %zu, Cols: %zu.\n", output->data_rows, output->cols);

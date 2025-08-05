@@ -7,20 +7,10 @@
 
 typedef struct Optimizer Optimizer;
 
-typedef struct OptimizerState {
-
-} OptimizerState;
-
-typedef struct OptimizerAdditionalParams {
-
-} OptimizerAdditionalParams;
-
 typedef void (*OptimizerStep)(Optimizer *o, Layer *l, LayerGradients *grads);
 typedef struct Optimizer {
 
     BASE_TYPE learning_rate;
-    OptimizerState state;
-    OptimizerAdditionalParams additional_params;
     OptimizerStep step;
 
 } Optimizer;
