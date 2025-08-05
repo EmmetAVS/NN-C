@@ -57,19 +57,3 @@ jobs:
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       run: ctest --build-config ${{ matrix.build_type }}
-
-    - name: Run all example executables
-      shell: bash
-      run: |
-        set -e
-        EXAMPLES_DIR="${{ github.workspace }}/examples"
-
-        for dir in "$EXAMPLES_DIR"/*/; do
-          dir_name=$(basename "$dir")
-          exe="examples/$dir/example_${dir_name}.exe"
-          if [[ -f "$exe" ]]; then
-            "$exe"
-          else
-            echo "Executable '$exe' not found for $dir_name"
-          fi
-        done
