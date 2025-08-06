@@ -69,7 +69,7 @@ jobs:
           dir_name=$(basename "$dir")
           cd "./examples/$dir_name"
 
-          if [[ "$OS" == "Windows_NT" ]]; then
+          if [[ "${{ runner.os }}" == "Windows_NT" ]]; then
             exe="example_${dir_name}.exe"
           else
             exe="example_${dir_name}"
@@ -85,3 +85,18 @@ jobs:
           cd "../.."
 
         done
+    - name: Save artifact path
+      id: nnlibpath
+      run: |
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          echo "path=./build/libnnlib.lib" >> $GITHUB_OUTPUT
+        else
+          echo "path=./build/libnnlib.a" >> $GITHUB_OUTPUT
+      shell: bash
+    - name: Upload Artifact (nnlib)
+      if: success()
+      uses: actions/upload-artifact@v4
+      with:
+        name: nnlib-${{ runner.os }}-${{ matrix.c_compiler }}
+        path: ${{ steps.nnlibpath.outputs.path }}
+    
