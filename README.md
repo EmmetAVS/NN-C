@@ -15,6 +15,7 @@
 4. Optimizers
    - SGD (params: learning_rate)
    - ADAM (params: learning_rate, beta_1, beta_2)
+   - Support for customs
 6. Full training loop (as demonstrated in test/test_training_loop.c)
    ```
    Model *model = ...;
