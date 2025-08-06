@@ -89,7 +89,7 @@ jobs:
       id: nnlibpath
       run: |
         if [[ "$RUNNER_OS" == "Windows" ]]; then
-          echo "path=./build/libnnlib.lib" >> $GITHUB_OUTPUT
+          echo "path=./build/Release/nnlib.lib" >> $GITHUB_OUTPUT
         else
           echo "path=./build/libnnlib.a" >> $GITHUB_OUTPUT
         fi
