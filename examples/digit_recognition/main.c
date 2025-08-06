@@ -49,7 +49,8 @@ void load_train(CSVOutput *train, Vector ****inputs, Vector ****labels, size_t b
 void train_model(Model *model, const int epochs, const int batch_size, const int batches, const int total_data_len, Vector ***inputs, Vector ***labels) {
     model_set_calculate_grads(model, true);
 
-    Optimizer *opt = create_SGD_optimizer(0.01f);
+    //Optimizer *opt = create_SGD_optimizer(0.01f);
+    Optimizer *opt = create_ADAM_optimizer(model, 0.001f, 0.9f, 0.999f);
     
     printf("Training with %d epochs, %d batch size, and %d batches across %d examples\n", epochs, batch_size, batches, total_data_len);
 
