@@ -13,7 +13,8 @@
    - Support for customs
 3. Gradient Descent, Backpropogation
 4. Optimizers
-   - SGD with customizable learning rate
+   - SGD (params: learning_rate)
+   - ADAM (params: learning_rate, beta_1, beta_2)
 6. Full training loop (as demonstrated in test/test_training_loop.c)
    ```
    Model *model = ...;
