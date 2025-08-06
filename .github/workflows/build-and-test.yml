@@ -92,6 +92,7 @@ jobs:
           echo "path=./build/libnnlib.lib" >> $GITHUB_OUTPUT
         else
           echo "path=./build/libnnlib.a" >> $GITHUB_OUTPUT
+        fi
       shell: bash
     - name: Upload Artifact (nnlib)
       if: success()
