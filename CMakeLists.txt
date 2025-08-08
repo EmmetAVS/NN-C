@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(MyCProject C)
+project(NN-C C)
 
 option(DEBUG "Enable debug sanitizer mode" OFF)
 
