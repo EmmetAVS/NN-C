@@ -96,7 +96,7 @@ static Vector *model_inference(Model *model, Vector *inputs) {
             layer->context->activated_output = NULL;
         }
 
-        Vector *placeholder = forward_layer(layer, current_output, false);
+        Vector *placeholder = layer->forward(layer, current_output, false);
         
         if (current_output != inputs) 
             destroy_vector(current_output);
@@ -119,7 +119,7 @@ static Vector *model_forward_with_grad(Model *model, Vector *inputs) {
             destroy_vector(layer->context->activated_output);
             layer->context->activated_output = NULL;
         }
-        Vector *placeholder = forward_layer(layer, current_output, true);
+        Vector *placeholder = layer->forward(layer, current_output, true);
         current_output = placeholder;
         
     }
@@ -170,7 +170,7 @@ void model_backward(Model *model, Vector *labels) {
 
         }
 
-        LayerGradients *grad = backward_layer(current_layer, layer_context->inputs, layer_context->logits, &backprop_context);
+        LayerGradients *grad = current_layer->backward(current_layer, layer_context->inputs, layer_context->logits, &backprop_context);
         if (dL_dA_calculated_through_loss) 
             destroy_vector(dL_dA);
         model->gradients[i][model->current_grads_accumulated] = grad;

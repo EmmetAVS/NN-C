@@ -1,5 +1,6 @@
 #include "layer.h"
 #include "operations.h"
+#include "backprop.h"
 #include <stdlib.h>
 
 Layer *create_layer(size_t input_size, size_t output_size, ActivationFunction activation) {
@@ -24,6 +25,8 @@ Layer *create_layer(size_t input_size, size_t output_size, ActivationFunction ac
     }
 
     l->context = NULL;
+    l->forward = forward_layer;
+    l->backward = backward_layer;
     return l;
 
 }

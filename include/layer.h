@@ -5,6 +5,13 @@
 #include "activations.h"
 #include "loss.h"
 
+typedef struct BackpropContext BackpropContext;
+typedef struct LayerGradients LayerGradients;
+typedef struct Layer Layer;
+
+typedef Vector * (*LayerForward)(Layer *layer, Vector *input, bool save_context);
+typedef LayerGradients * (*LayerBackward)(Layer *layer, Vector *input, Vector *logits, BackpropContext *context); 
+
 typedef struct LayerContext {
 
     Vector *inputs;
@@ -21,6 +28,8 @@ typedef struct Layer {
     size_t input_size;
     size_t output_size;
     LayerContext *context;
+    LayerForward forward;
+    LayerBackward backward;
 
 } Layer;
 
