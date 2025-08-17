@@ -4,14 +4,13 @@
 
 static void optimizer_step_adam(Optimizer *o, Layer *layer, LayerGradients *grads) {
 
-    OptimizerAdamState *state = (OptimizerAdamState *)o->optimizer_state;
-    OptimizerAdamParams *params = (OptimizerAdamParams *)o->additional_parameters;
+    AdamOptimizer *a_opt = (AdamOptimizer *)o;
 
     int layer_index = -1;
 
-    for (size_t i = 0; i < state->layers; i ++) {
+    for (size_t i = 0; i < a_opt->layers; i ++) {
 
-        if (state->model->layers[i] == layer) {
+        if (a_opt->model->layers[i] == layer) {
             layer_index = (int) i;
             break;
         }
@@ -22,10 +21,10 @@ static void optimizer_step_adam(Optimizer *o, Layer *layer, LayerGradients *grad
         return;
     }
 
-    state->steps[layer_index] += 1;
+    a_opt->steps[layer_index] += 1;
 
-    const BASE_TYPE beta_1_pow = pow(params->beta_1, state->steps[layer_index]);
-    const BASE_TYPE beta_2_pow = pow(params->beta_2, state->steps[layer_index]);
+    const BASE_TYPE beta_1_pow = pow(a_opt->beta_1, a_opt->steps[layer_index]);
+    const BASE_TYPE beta_2_pow = pow(a_opt->beta_2, a_opt->steps[layer_index]);
 
     //Update weights
     for (size_t output_index = 0; output_index < layer->output_size; output_index ++) {
@@ -36,11 +35,11 @@ static void optimizer_step_adam(Optimizer *o, Layer *layer, LayerGradients *grad
 
             BASE_TYPE grad = grads->d_weights->data[index];
 
-            BASE_TYPE m_t = (params->beta_1 * state->weight_m_t[layer_index]->data[index]) + ((1 - params->beta_1) * grad);
-            BASE_TYPE v_t = (params->beta_2 * state->weight_v_t[layer_index]->data[index]) + ((1 - params->beta_2) * (grad * grad));
+            BASE_TYPE m_t = (a_opt->beta_1 * a_opt->weight_m_t[layer_index]->data[index]) + ((1 - a_opt->beta_1) * grad);
+            BASE_TYPE v_t = (a_opt->beta_2 * a_opt->weight_v_t[layer_index]->data[index]) + ((1 - a_opt->beta_2) * (grad * grad));
 
-            state->weight_m_t[layer_index]->data[index] = m_t;
-            state->weight_v_t[layer_index]->data[index] = v_t;
+            a_opt->weight_m_t[layer_index]->data[index] = m_t;
+            a_opt->weight_v_t[layer_index]->data[index] = v_t;
 
             //Correct bias
             BASE_TYPE no_bias_m_t = (m_t) / (1 - beta_1_pow);
@@ -57,11 +56,11 @@ static void optimizer_step_adam(Optimizer *o, Layer *layer, LayerGradients *grad
 
         BASE_TYPE grad = grads->d_biases->data[output_index];
 
-        BASE_TYPE m_t = (params->beta_1 * state->bias_m_t[layer_index]->data[output_index]) + ((1 - params->beta_1) * grad);
-        BASE_TYPE v_t = (params->beta_2 * state->bias_v_t[layer_index]->data[output_index]) + ((1 - params->beta_2) * (grad * grad));
+        BASE_TYPE m_t = (a_opt->beta_1 * a_opt->bias_m_t[layer_index]->data[output_index]) + ((1 - a_opt->beta_1) * grad);
+        BASE_TYPE v_t = (a_opt->beta_2 * a_opt->bias_v_t[layer_index]->data[output_index]) + ((1 - a_opt->beta_2) * (grad * grad));
 
-        state->bias_m_t[layer_index]->data[output_index] = m_t;
-        state->bias_v_t[layer_index]->data[output_index] = v_t;
+        a_opt->bias_m_t[layer_index]->data[output_index] = m_t;
+        a_opt->bias_v_t[layer_index]->data[output_index] = v_t;
 
         //Correct bias
         BASE_TYPE no_bias_m_t = (m_t) / (1 - beta_1_pow);
@@ -84,78 +83,66 @@ Optimizer *create_SGD_optimizer(BASE_TYPE learning_rate) {
     Optimizer* o = (Optimizer *)malloc(sizeof(Optimizer));
     o->learning_rate = learning_rate;
     o->step = optimizer_step_sgd;
-    o->additional_parameters = NULL;
-    o->optimizer_state = NULL;
     o->destruction = NULL;
 
     return o;
 }
 
 static void destroy_ADAM_optimizer(Optimizer *o) {
+    AdamOptimizer *a_opt = (AdamOptimizer *)o;
 
-    OptimizerAdamState *state = (OptimizerAdamState *) (o->optimizer_state);
+    for (size_t i = 0; i < a_opt->layers; i ++) {
 
-    for (size_t i = 0; i < state->layers; i ++) {
+        destroy_matrix(a_opt->weight_m_t[i]);
+        destroy_matrix(a_opt->weight_v_t[i]);
 
-        destroy_matrix(state->weight_m_t[i]);
-        destroy_matrix(state->weight_v_t[i]);
-
-        destroy_vector(state->bias_m_t[i]);
-        destroy_vector(state->bias_v_t[i]);
+        destroy_vector(a_opt->bias_m_t[i]);
+        destroy_vector(a_opt->bias_v_t[i]);
 
     }
 
-    free(state->weight_m_t);
-    free(state->weight_v_t);
-    free(state->bias_m_t);
-    free(state->bias_v_t);
-    free(state->steps);
-
-    free((OptimizerAdamParams *) (o->additional_parameters));
-    free((OptimizerAdamState *) (o->optimizer_state));
+    free(a_opt->weight_m_t);
+    free(a_opt->weight_v_t);
+    free(a_opt->bias_m_t);
+    free(a_opt->bias_v_t);
+    free(a_opt->steps);
 
 }
 
 Optimizer *create_ADAM_optimizer(Model *model, BASE_TYPE learning_rate, BASE_TYPE beta_1, BASE_TYPE beta_2) {
 
-    Optimizer* o = (Optimizer *)malloc(sizeof(Optimizer));
-    o->learning_rate = learning_rate;
-    o->step = optimizer_step_adam;
-
-    OptimizerAdamParams *params = (OptimizerAdamParams *)malloc(sizeof(OptimizerAdamParams));
-    OptimizerAdamState *state = (OptimizerAdamState *)malloc(sizeof(OptimizerAdamState));
+    AdamOptimizer* o = (AdamOptimizer *)malloc(sizeof(AdamOptimizer));
+    ((Optimizer *) o)->learning_rate = learning_rate;
+    ((Optimizer *) o)->step = optimizer_step_adam;
 
     //Setup params
-    params->beta_1 = beta_1;
-    params->beta_2 = beta_2;
+    o->beta_1 = beta_1;
+    o->beta_2 = beta_2;
     
     //Setup state
-    state->model =  model;
-    state->layers = model->num_layers;
-    state->weight_m_t = (Matrix **)malloc(sizeof(Matrix *) * state->layers);
-    state->weight_v_t = (Matrix **)malloc(sizeof(Matrix *) * state->layers);
-    state->bias_m_t = (Vector **)malloc(sizeof(Vector *) * state->layers);
-    state->bias_v_t = (Vector **)malloc(sizeof(Vector *) * state->layers);
+    o->model =  model;
+    o->layers = model->num_layers;
+    o->weight_m_t = (Matrix **)malloc(sizeof(Matrix *) * o->layers);
+    o->weight_v_t = (Matrix **)malloc(sizeof(Matrix *) * o->layers);
+    o->bias_m_t = (Vector **)malloc(sizeof(Vector *) * o->layers);
+    o->bias_v_t = (Vector **)malloc(sizeof(Vector *) * o->layers);
 
-    for (size_t i = 0; i < state->layers; i ++) {
+    for (size_t i = 0; i < o->layers; i ++) {
 
         Layer *cur_layer = model->layers[i];
 
-        state->weight_m_t[i] = create_matrix(cur_layer->weights->rows, cur_layer->weights->cols);
-        state->weight_v_t[i] = create_matrix(cur_layer->weights->rows, cur_layer->weights->cols);
+        o->weight_m_t[i] = create_matrix(cur_layer->weights->rows, cur_layer->weights->cols);
+        o->weight_v_t[i] = create_matrix(cur_layer->weights->rows, cur_layer->weights->cols);
 
-        state->bias_m_t[i] = create_vector(cur_layer->biases->length);
-        state->bias_v_t[i] = create_vector(cur_layer->biases->length);
+        o->bias_m_t[i] = create_vector(cur_layer->biases->length);
+        o->bias_v_t[i] = create_vector(cur_layer->biases->length);
 
     }
 
-    state->steps = (size_t *)calloc(state->layers, sizeof(size_t));
+    o->steps = (size_t *)calloc(o->layers, sizeof(size_t));
+    ((Optimizer *) o)->destruction = destroy_ADAM_optimizer;
 
-    o->additional_parameters = (void *) params;
-    o->optimizer_state = (void *) state;
-    o->destruction = destroy_ADAM_optimizer;
-
-    return o;
+    return (Optimizer *) o;
 
 }
 

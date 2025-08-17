@@ -14,21 +14,18 @@ typedef struct Optimizer {
 
     BASE_TYPE learning_rate;
     OptimizerStep step;
-    void *additional_parameters;
-    void *optimizer_state;
     OptimizerDestructionFunc destruction;
 
 } Optimizer;
 
-typedef struct OptimizerAdamParams {
+typedef struct AdamOptimizer {
+    Optimizer opt;
 
+    //Params
     BASE_TYPE beta_1;
     BASE_TYPE beta_2;
 
-} OptimizerAdamParams;
-
-typedef struct OptimizerAdamState {
-
+    //State
     Matrix **weight_m_t;
     Matrix **weight_v_t;
     Vector **bias_m_t;
@@ -37,7 +34,7 @@ typedef struct OptimizerAdamState {
     Model *model;
     size_t *steps;
 
-} OptimizerAdamState;
+} AdamOptimizer;
 
 Optimizer *create_SGD_optimizer(BASE_TYPE learning_rate);
 Optimizer *create_ADAM_optimizer(Model *model, BASE_TYPE learning_rate, BASE_TYPE beta_1, BASE_TYPE beta_2);
