@@ -9,7 +9,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 include_directories(include)
 
 
-file(GLOB SRC_FILES src/*.c)
+file(GLOB SRC_FILES CONFIGURE_DEPENDS src/*.c)
 add_library(nnlib STATIC ${SRC_FILES})
 
 if(MSVC)
@@ -17,6 +17,11 @@ if(MSVC)
 endif()
 
 target_compile_options(nnlib PRIVATE -Wall)
+
+if(DEBUG)
+else()
+    target_compile_options(nnlib PRIVATE -O3)
+endif()
 
 enable_testing()
 
@@ -42,6 +47,8 @@ foreach(example_dir ${EXAMPLE_DIRS})
             if(DEBUG)
                 target_compile_options(${target_name} PRIVATE -g -O0 -fsanitize=address)
                 target_link_options(${target_name} PRIVATE -fsanitize=address)
+            else()
+                target_compile_options(${target_name} PRIVATE -O3)
             endif()
 
             set_target_properties(${target_name} PROPERTIES
