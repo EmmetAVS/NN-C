@@ -39,6 +39,7 @@ unsigned int _time();
 
 Vector *create_vector(size_t length);
 void destroy_vector(Vector *vector);
+
 Matrix *create_matrix(size_t rows, size_t cols);
 void destroy_matrix(Matrix *matrix);
 BASE_TYPE matrix_get_value_at(Matrix *m, int rowIndex, int colIndex);
