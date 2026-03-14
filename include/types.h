@@ -5,7 +5,10 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#ifndef BASE_TYPE
 #define BASE_TYPE float
+#endif
+
 #define UNDEFINED NAN
 #define EPSILON 1e-9
 
