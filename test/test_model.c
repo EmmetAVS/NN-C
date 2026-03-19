@@ -1,5 +1,5 @@
 #include "tests.h"
-#include "model.h"
+#include "model2d.h"
 #include "activations.h"
 #include "loss.h"
 #include "layer.h"
@@ -16,10 +16,10 @@ void test_model_forward_backward() {
         activation_loss_softmax_cross_entropy
     };
 
-    Model *model = create_model(shapes, activations, 2, mean_squared_error_loss);
+    Model2D *model = create_model2d(shapes, activations, 2, mean_squared_error_loss);
 
-    model_set_calculate_grads(model, true);
-    model_set_max_grads(model, 10);
+    model2d_set_calculate_grads(model, true);
+    model2d_set_max_grads(model, 10);
 
     Vector *input = create_vector(2);
     input->data[0] = 1.0;
@@ -28,13 +28,13 @@ void test_model_forward_backward() {
     Vector *label = create_vector(1);
     label->data[0] = 1.0;
 
-    Vector *output = model_forward(model, input);
+    Vector *output = model2d_forward(model, input);
     assert(output != NULL);
 
-    model_backward(model, label);
+    model2d_backward(model, label);
     assert(model->current_grads_accumulated == 1);
 
-    model_average_grads(model);
+    model2d_average_grads(model);
 
     for (size_t i = 0; i < model->num_layers; ++i) {
         assert(model->averaged_gradients[i] != NULL);
@@ -45,7 +45,7 @@ void test_model_forward_backward() {
     destroy_vector(input);
     destroy_vector(label);
     destroy_vector(output);
-    destroy_model(model);
+    destroy_model2d(model);
 }
 
 int main() {

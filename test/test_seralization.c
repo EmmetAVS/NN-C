@@ -1,5 +1,5 @@
 #include "tests.h"
-#include "model.h"
+#include "model2d.h"
 #include "optimizer.h"
 #include "loss.h"
 #include "layer.h"
@@ -24,12 +24,12 @@ Vector *create_vector_from_array(BASE_TYPE *data, size_t size) {
     return v;
 }
 
-Model *train_model(size_t **shape, ActivationFunction *activations) {
+Model2D *train_model(size_t **shape, ActivationFunction *activations) {
 
-    Model *model = create_model(shape, activations, 2, mean_squared_error_loss);
-    model_set_calculate_grads(model, true);
+    Model2D *model = create_model2d(shape, activations, 2, mean_squared_error_loss);
+    model2d_set_calculate_grads(model, true);
 
-    Optimizer *opt = create_SGD_optimizer(1.f);
+    Optimizer2D *opt = create_SGD_optimizer2d(1.f);
 
     inputs = (Vector **)malloc(sizeof(Vector *) * samples);
     labels = (Vector **)malloc(sizeof(Vector *) * samples);
@@ -42,20 +42,20 @@ Model *train_model(size_t **shape, ActivationFunction *activations) {
     BASE_TYPE prev_loss = 0;
 
     for (int epoch = 0; epoch < epochs; ++epoch) {
-        model_zero_grads(model);
-        model_set_max_grads(model, samples);
+        model2d_zero_grads(model);
+        model2d_set_max_grads(model, samples);
 
         for (int i = 0; i < samples; ++i) {
-            Vector *output = model_forward(model, inputs[i]);
-            model_backward(model, labels[i]);
+            Vector *output = model2d_forward(model, inputs[i]);
+            model2d_backward(model, labels[i]);
             destroy_vector(output);
         }
 
-        model_average_grads(model);
-        model_step(model, opt);
+        model2d_average_grads(model);
+        model2d_step(model, opt);
     }
 
-    destroy_optimizer(opt);
+    destroy_optimizer2d(opt);
     return model;
 }
 
@@ -73,23 +73,23 @@ int main() {
 
     ActivationFunction activations[2] = {activation_relu, activation_sigmoid};
     
-    Model *model1 = train_model(shape, activations);
-    write_model_params(model1, filename);
-    Model *model2 = create_model(shape, activations, model1->num_layers, model1->loss);
-    load_model_params(model2, filename);
+    Model2D *model1 = train_model(shape, activations);
+    write_model2d_params(model1, filename);
+    Model2D *model2 = create_model2d(shape, activations, model1->num_layers, model1->loss);
+    load_model2d_params(model2, filename);
 
-    model_set_calculate_grads(model1, false);
-    model_set_calculate_grads(model2, false);
+    model2d_set_calculate_grads(model1, false);
+    model2d_set_calculate_grads(model2, false);
 
     BASE_TYPE total_loss_difference = 0;
 
     for (int i = 0; i < samples; ++i) {
-        Vector *output = model_forward(model1, inputs[i]);
+        Vector *output = model2d_forward(model1, inputs[i]);
         BASE_TYPE Model1Loss = mean_squared_error_loss.forward(output, labels[i]);
 
         destroy_vector(output);
 
-        output = model_forward(model2, inputs[i]);
+        output = model2d_forward(model2, inputs[i]);
         BASE_TYPE Model2Loss = mean_squared_error_loss.forward(output, labels[i]);
 
         total_loss_difference += fabs(Model1Loss - Model2Loss);
@@ -102,8 +102,8 @@ int main() {
     printf("Total loss difference: %f\n", total_loss_difference);
     assert(total_loss_difference < EPSILON);
 
-    destroy_model(model1);
-    destroy_model(model2);
+    destroy_model2d(model1);
+    destroy_model2d(model2);
     free(shape[0]);
     free(shape[1]);
 
