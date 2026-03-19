@@ -1,10 +1,10 @@
-#include "model.h"
+#include "model2d.h"
 #include "optimizer.h"
 #include <stdlib.h>
 
-Model *create_model(size_t **shape, ActivationFunction *activations, size_t num_layers, LossFunction loss) {
+Model2D *create_model2d(size_t **shape, ActivationFunction *activations, size_t num_layers, LossFunction loss) {
 
-    Model *model = (Model *)malloc(sizeof(Model));
+    Model2D *model = (Model2D *)malloc(sizeof(Model2D));
     model->num_layers = num_layers;
     model->layers = (Layer **)malloc(sizeof(Layer *) * num_layers);
     for (size_t i = 0; i < num_layers; i ++) {
@@ -23,9 +23,9 @@ Model *create_model(size_t **shape, ActivationFunction *activations, size_t num_
 
 }
 
-void destroy_model(Model *model) {
+void destroy_model2d(Model2D *model) {
 
-    model_zero_grads(model);
+    model2d_zero_grads(model);
 
     for (size_t i = 0; i < model->num_layers; i ++) {
 
@@ -38,13 +38,13 @@ void destroy_model(Model *model) {
 
 }
 
-void model_set_calculate_grads(Model *model, bool calc_grads) {
+void model2d_set_calculate_grads(Model2D *model, bool calc_grads) {
 
     model->calc_grads = calc_grads;
 
 }
 
-void model_zero_grads(Model *model) {
+void model2d_zero_grads(Model2D *model) {
 
     if (!model->gradients) return;
     for (size_t i = 0; i < model->num_layers; i ++) {
@@ -69,8 +69,8 @@ void model_zero_grads(Model *model) {
 
 }
 
-void model_set_max_grads(Model *model, size_t max_grads) {
-    model_zero_grads(model);
+void model2d_set_max_grads(Model2D *model, size_t max_grads) {
+    model2d_zero_grads(model);
 
     model->gradients = (LayerGradients ***)malloc(sizeof(LayerGradients**) * model->num_layers);
     model->max_grads = max_grads;
@@ -82,7 +82,7 @@ void model_set_max_grads(Model *model, size_t max_grads) {
     }
 }
 
-static Vector *model_inference(Model *model, Vector *inputs) {
+static Vector *model2d_inference(Model2D *model, Vector *inputs) {
 
     Vector *current_output = inputs;
 
@@ -107,7 +107,7 @@ static Vector *model_inference(Model *model, Vector *inputs) {
 
 }
 
-static Vector *model_forward_with_grad(Model *model, Vector *inputs) {
+static Vector *model2d_forward_with_grad(Model2D *model, Vector *inputs) {
 
     Vector *current_output = inputs;
 
@@ -128,16 +128,16 @@ static Vector *model_forward_with_grad(Model *model, Vector *inputs) {
 
 }
 
-Vector *model_forward(Model *model, Vector *inputs) {
+Vector *model2d_forward(Model2D *model, Vector *inputs) {
     if (model->calc_grads) {
-        return model_forward_with_grad(model, inputs);
+        return model2d_forward_with_grad(model, inputs);
     }
-    return model_inference(model, inputs);
+    return model2d_inference(model, inputs);
 
 
 }
 
-void model_backward(Model *model, Vector *labels) {
+void model2d_backward(Model2D *model, Vector *labels) {
 
     if (!model->calc_grads || model->num_layers < 1 || model->current_grads_accumulated == model->max_grads) return;
     Vector *dL_dA = NULL;
@@ -181,7 +181,7 @@ void model_backward(Model *model, Vector *labels) {
 
 }
 
-void model_average_grads(Model *model) {
+void model2d_average_grads(Model2D *model) {
     size_t grad_accumulation_diff = model->max_grads - model->current_grads_accumulated;
 
     model->averaged_gradients = (LayerGradients **)malloc(sizeof(LayerGradients*) * model->num_layers);
@@ -207,7 +207,7 @@ void model_average_grads(Model *model) {
 
 }
 
-void model_clear_accumulated_grads(Model *model) {
+void model2d_clear_accumulated_grads(Model2D *model) {
 
     if (!model->gradients) return;
     for (size_t i = 0; i < model->num_layers; i ++) {
@@ -229,7 +229,7 @@ void model_clear_accumulated_grads(Model *model) {
 
 }
 
-void model_step(Model *model, Optimizer *o) {
+void model2d_step(Model2D *model, Optimizer2D *o) {
 
     if (!model->averaged_gradients) return;
 

@@ -5,10 +5,10 @@
 #include <assert.h>
 #include <stdio.h>
 
-void test_create_and_destroy_optimizer() {
+void test_create_and_destroy_optimizer2d() {
     BASE_TYPE lr = 0.1f;
 
-    Optimizer *opt = create_SGD_optimizer(lr);
+    Optimizer2D *opt = create_SGD_optimizer2d(lr);
     assert(opt != NULL);
     assert(opt->learning_rate == lr);
 
@@ -33,7 +33,7 @@ void test_create_and_destroy_optimizer() {
         }
     }
 
-    destroy_optimizer(opt);
+    destroy_optimizer2d(opt);
     destroy_layer(l);
     destroy_layer_gradients(grads);
 }
@@ -42,6 +42,6 @@ int main() {
     
     nnlib_startup();
     
-    test_create_and_destroy_optimizer();
+    test_create_and_destroy_optimizer2d();
     return 0;
 }

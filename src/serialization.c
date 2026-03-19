@@ -69,7 +69,7 @@ static bool _read_layer(Layer *layer, FILE *file) {
 
 }
 
-bool write_model_params(Model *model, const char *filename) {
+bool write_model2d_params(Model2D *model, const char *filename) {
 
     FILE *file = fopen(filename, "wb");
     if (!file) {
@@ -92,7 +92,7 @@ bool write_model_params(Model *model, const char *filename) {
 
 }
 
-bool load_model_params(Model *model, const char *filename) {
+bool load_model2d_params(Model2D *model, const char *filename) {
 
     FILE *file = fopen(filename, "rb");
     if (!file) {

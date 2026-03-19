@@ -1,5 +1,5 @@
 #include "tests.h"
-#include "model.h"
+#include "model2d.h"
 #include "optimizer.h"
 #include "loss.h"
 #include "layer.h"
@@ -34,10 +34,10 @@ void test_training_loop_reduces_loss() {
     shape[1][0] = 4; shape[1][1] = 1;
 
     ActivationFunction activations[2] = {activation_relu, activation_sigmoid};
-    Model *model = create_model(shape, activations, 2, mean_squared_error_loss);
-    model_set_calculate_grads(model, true);
+    Model2D *model = create_model2d(shape, activations, 2, mean_squared_error_loss);
+    model2d_set_calculate_grads(model, true);
 
-    Optimizer *opt = create_SGD_optimizer(1.f);
+    Optimizer2D *opt = create_SGD_optimizer2d(1.f);
 
     Vector *inputs[SAMPLES], *labels[SAMPLES];
     for (int i = 0; i < SAMPLES; ++i) {
@@ -48,24 +48,24 @@ void test_training_loop_reduces_loss() {
     BASE_TYPE prev_loss = 0;
 
     for (int epoch = 0; epoch < EPOCHS; ++epoch) {
-        model_zero_grads(model);
-        model_set_max_grads(model, SAMPLES);
+        model2d_zero_grads(model);
+        model2d_set_max_grads(model, SAMPLES);
 
         for (int i = 0; i < SAMPLES; ++i) {
-            Vector *output = model_forward(model, inputs[i]);
-            model_backward(model, labels[i]);
+            Vector *output = model2d_forward(model, inputs[i]);
+            model2d_backward(model, labels[i]);
             destroy_vector(output);
         }
 
-        model_average_grads(model);
-        model_step(model, opt);
+        model2d_average_grads(model);
+        model2d_step(model, opt);
 
         if (epoch % PRINT_EVERY == 0 || epoch == EPOCHS - 1) {
             BASE_TYPE total_loss = 0;
             for (int i = 0; i < SAMPLES; ++i) {
-                model_set_calculate_grads(model, false);
-                Vector *output = model_forward(model, inputs[i]);
-                model_set_calculate_grads(model, true);
+                model2d_set_calculate_grads(model, false);
+                Vector *output = model2d_forward(model, inputs[i]);
+                model2d_set_calculate_grads(model, true);
                 total_loss += mean_squared_error_loss.forward(output, labels[i]);
                 destroy_vector(output);
             }
@@ -86,8 +86,8 @@ void test_training_loop_reduces_loss() {
         destroy_vector(inputs[i]);
         destroy_vector(labels[i]);
     }
-    destroy_optimizer(opt);
-    destroy_model(model);
+    destroy_optimizer2d(opt);
+    destroy_model2d(model);
     free(shape[0]);
     free(shape[1]);
 

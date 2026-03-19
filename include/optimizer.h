@@ -4,22 +4,22 @@
 #include "types.h"
 #include "layer.h"
 #include "backprop.h"
-#include "model.h"
+#include "model2d.h"
 
-typedef struct Optimizer Optimizer;
+typedef struct Optimizer2D Optimizer2D;
 
-typedef void (*OptimizerStep)(Optimizer *o, Layer *l, LayerGradients *grads);
-typedef void (*OptimizerDestructionFunc)(Optimizer *o);
-typedef struct Optimizer {
+typedef void (*Optimizer2DStep)(Optimizer2D *o, Layer *l, LayerGradients *grads);
+typedef void (*Optimizer2DDestructionFunc)(Optimizer2D *o);
+typedef struct Optimizer2D {
 
     BASE_TYPE learning_rate;
-    OptimizerStep step;
-    OptimizerDestructionFunc destruction;
+    Optimizer2DStep step;
+    Optimizer2DDestructionFunc destruction;
 
-} Optimizer;
+} Optimizer2D;
 
-typedef struct AdamOptimizer {
-    Optimizer opt;
+typedef struct AdamOptimizer2D {
+    Optimizer2D opt;
 
     //Params
     BASE_TYPE beta_1;
@@ -31,13 +31,13 @@ typedef struct AdamOptimizer {
     Vector **bias_m_t;
     Vector **bias_v_t;
     size_t layers;
-    Model *model;
+    Model2D *model;
     size_t *steps;
 
-} AdamOptimizer;
+} AdamOptimizer2D;
 
-Optimizer *create_SGD_optimizer(BASE_TYPE learning_rate);
-Optimizer *create_ADAM_optimizer(Model *model, BASE_TYPE learning_rate, BASE_TYPE beta_1, BASE_TYPE beta_2);
-void destroy_optimizer(Optimizer *o);
+Optimizer2D *create_SGD_optimizer2d(BASE_TYPE learning_rate);
+Optimizer2D *create_ADAM_optimizer2d(Model2D *model, BASE_TYPE learning_rate, BASE_TYPE beta_1, BASE_TYPE beta_2);
+void destroy_optimizer2d(Optimizer2D *o);
 
 #endif

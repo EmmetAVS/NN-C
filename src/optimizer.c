@@ -1,10 +1,10 @@
 #include "optimizer.h"
-#include "model.h"
+#include "model2d.h"
 #include <stdlib.h>
 
-static void optimizer_step_adam(Optimizer *o, Layer *layer, LayerGradients *grads) {
+static void optimizer_step_adam2d(Optimizer2D *o, Layer *layer, LayerGradients *grads) {
 
-    AdamOptimizer *a_opt = (AdamOptimizer *)o;
+    AdamOptimizer2D *a_opt = (AdamOptimizer2D *)o;
 
     int layer_index = -1;
 
@@ -72,24 +72,24 @@ static void optimizer_step_adam(Optimizer *o, Layer *layer, LayerGradients *grad
 
 }
 
-static void optimizer_step_sgd(Optimizer *o, Layer *l, LayerGradients *grads) {
+static void optimizer_step_sgd2d(Optimizer2D *o, Layer *l, LayerGradients *grads) {
 
     update_layer_parameters(l, grads, o->learning_rate);
 
 }
 
-Optimizer *create_SGD_optimizer(BASE_TYPE learning_rate) {
+Optimizer2D *create_SGD_optimizer2d(BASE_TYPE learning_rate) {
     
-    Optimizer* o = (Optimizer *)malloc(sizeof(Optimizer));
+    Optimizer2D* o = (Optimizer2D *)malloc(sizeof(Optimizer2D));
     o->learning_rate = learning_rate;
-    o->step = optimizer_step_sgd;
+    o->step = optimizer_step_sgd2d;
     o->destruction = NULL;
 
     return o;
 }
 
-static void destroy_ADAM_optimizer(Optimizer *o) {
-    AdamOptimizer *a_opt = (AdamOptimizer *)o;
+static void destroy_ADAM_optimizer2d(Optimizer2D *o) {
+    AdamOptimizer2D *a_opt = (AdamOptimizer2D *)o;
 
     for (size_t i = 0; i < a_opt->layers; i ++) {
 
@@ -109,11 +109,11 @@ static void destroy_ADAM_optimizer(Optimizer *o) {
 
 }
 
-Optimizer *create_ADAM_optimizer(Model *model, BASE_TYPE learning_rate, BASE_TYPE beta_1, BASE_TYPE beta_2) {
+Optimizer2D *create_ADAM_optimizer2d(Model2D *model, BASE_TYPE learning_rate, BASE_TYPE beta_1, BASE_TYPE beta_2) {
 
-    AdamOptimizer* o = (AdamOptimizer *)malloc(sizeof(AdamOptimizer));
-    ((Optimizer *) o)->learning_rate = learning_rate;
-    ((Optimizer *) o)->step = optimizer_step_adam;
+    AdamOptimizer2D* o = (AdamOptimizer2D *)malloc(sizeof(AdamOptimizer2D));
+    ((Optimizer2D *) o)->learning_rate = learning_rate;
+    ((Optimizer2D *) o)->step = optimizer_step_adam2d;
 
     //Setup params
     o->beta_1 = beta_1;
@@ -140,13 +140,13 @@ Optimizer *create_ADAM_optimizer(Model *model, BASE_TYPE learning_rate, BASE_TYP
     }
 
     o->steps = (size_t *)calloc(o->layers, sizeof(size_t));
-    ((Optimizer *) o)->destruction = destroy_ADAM_optimizer;
+    ((Optimizer2D *) o)->destruction = destroy_ADAM_optimizer2d;
 
-    return (Optimizer *) o;
+    return (Optimizer2D *) o;
 
 }
 
-void destroy_optimizer(Optimizer *o) {
+void destroy_optimizer2d(Optimizer2D *o) {
 
     if (o->destruction != NULL) {
         o->destruction(o);

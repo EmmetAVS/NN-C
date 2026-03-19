@@ -1,4 +1,4 @@
-#include "model.h"
+#include "model2d.h"
 #include "optimizer.h"
 #include "data.h"
 #include "utils.h"
@@ -46,11 +46,11 @@ void load_train(CSVOutput *train, Vector ****inputs, Vector ****labels, size_t b
     }
 }
 
-void train_model(Model *model, const int epochs, const int batch_size, const int batches, const int total_data_len, Vector ***inputs, Vector ***labels) {
-    model_set_calculate_grads(model, true);
+void train_model(Model2D *model, const int epochs, const int batch_size, const int batches, const int total_data_len, Vector ***inputs, Vector ***labels) {
+    model2d_set_calculate_grads(model, true);
 
-    //Optimizer *opt = create_SGD_optimizer(0.01f);
-    Optimizer *opt = create_ADAM_optimizer(model, 0.001f, 0.9f, 0.999f);
+    //Optimizer2D *opt = create_SGD_optimizer2d(0.01f);
+    Optimizer2D *opt = create_ADAM_optimizer2d(model, 0.001f, 0.9f, 0.999f);
     
     printf("Training with %d epochs, %d batch size, and %d batches across %d examples\n", epochs, batch_size, batches, total_data_len);
 
@@ -62,23 +62,23 @@ void train_model(Model *model, const int epochs, const int batch_size, const int
 
         for (int i = 0; i < batches; ++i) {
             
-            model_zero_grads(model);
-            model_set_max_grads(model, batch_size);
+            model2d_zero_grads(model);
+            model2d_set_max_grads(model, batch_size);
 
             for (int b = 0; b < batch_size; b ++) {
                 if (inputs[i][b] && labels[i][b]) {
 
-                    Vector *output = model_forward(model, inputs[i][b]);
+                    Vector *output = model2d_forward(model, inputs[i][b]);
                     total_loss += cross_entropy_loss(output, labels[i][b]);
                     data_used += 1;
-                    model_backward(model, labels[i][b]);
+                    model2d_backward(model, labels[i][b]);
                     destroy_vector(output);
 
                 }
             }
 
-            model_average_grads(model);
-            model_step(model, opt);
+            model2d_average_grads(model);
+            model2d_step(model, opt);
 
         }
         
@@ -86,10 +86,10 @@ void train_model(Model *model, const int epochs, const int batch_size, const int
         printf("Loss: %f @ epoch #%d\n", averaged_loss, epoch + 1);
     }
     
-    destroy_optimizer(opt);
+    destroy_optimizer2d(opt);
 }
 
-BASE_TYPE test_model(Model *model, char *filename) {
+BASE_TYPE test_model(Model2D *model, char *filename) {
 
     printf("Testing Model on file %s\n", filename);
     CSVOutput *test = read_csv(filename, INTEGER);
@@ -122,7 +122,7 @@ BASE_TYPE test_model(Model *model, char *filename) {
 
     }
 
-    model_set_calculate_grads(model, false);
+    model2d_set_calculate_grads(model, false);
 
     int successes = 0;
     BASE_TYPE total_loss = 0;
@@ -130,7 +130,7 @@ BASE_TYPE test_model(Model *model, char *filename) {
     for (size_t i = 0; i < test_count; i ++) {
 
         if (!test_inputs[i] || !test_labels[i]) continue;
-        Vector *output = model_forward(model, test_inputs[i]);
+        Vector *output = model2d_forward(model, test_inputs[i]);
         size_t index = argmax(output);
         size_t label_index = argmax(test_labels[i]);
         BASE_TYPE loss = cross_entropy_loss(output, test_labels[i]);
@@ -206,7 +206,7 @@ int main(const int argc, char *argv[]) {
 
     LossFunction empty_loss = {.backward = NULL, .forward = NULL};
     ActivationFunction activation_functions[NUM_LAYERS] = {activation_relu, activation_relu, activation_loss_softmax_cross_entropy};
-    Model *model = create_model(shape, activation_functions, NUM_LAYERS, empty_loss);
+    Model2D *model = create_model2d(shape, activation_functions, NUM_LAYERS, empty_loss);
     
     Vector ***inputs, ***labels;
     load_train(train, &inputs, &labels, batches, batch_size, total_data_len, pixel_count);
@@ -231,14 +231,14 @@ int main(const int argc, char *argv[]) {
 
     }
 
-    if (!load_model_params(model, model_path)) {
+    if (!load_model2d_params(model, model_path)) {
         printf("No model parameters found, training model\n");
         train_model(model, epochs, batch_size, batches, total_data_len, inputs, labels);
     }
 
     //Test model
 
-    model_set_calculate_grads(model, false);
+    model2d_set_calculate_grads(model, false);
 
     int successes = 0;
     BASE_TYPE total_loss = 0;
@@ -246,7 +246,7 @@ int main(const int argc, char *argv[]) {
     for (size_t i = 0; i < test_count; i ++) {
 
         if (!test_inputs[i] || !test_labels[i]) continue;
-        Vector *output = model_forward(model, test_inputs[i]);
+        Vector *output = model2d_forward(model, test_inputs[i]);
         size_t index = argmax(output);
         size_t label_index = argmax(test_labels[i]);
         BASE_TYPE loss = cross_entropy_loss(output, test_labels[i]);
@@ -303,9 +303,9 @@ int main(const int argc, char *argv[]) {
     free(test_inputs);
     free(test_labels);
 
-    write_model_params(model, model_path);
+    write_model2d_params(model, model_path);
     
-    destroy_model(model);
+    destroy_model2d(model);
     destroy_csv_output(train);
     return 0;
 
