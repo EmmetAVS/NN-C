@@ -107,3 +107,17 @@ void apply_shuffler(Shuffler *shuffler, void *data, size_t element_size) {
     }
 
 }
+
+void xavier_uniform_initialize(Matrix *m) {
+
+    BASE_TYPE weight_scale = sqrt(2.0 / (m->rows + m->cols));
+    HANDLE_SRAND()
+    
+    for (size_t i = 0; i < m->rows; i++) {
+        for (size_t j = 0; j < m->cols; j++) {
+            BASE_TYPE random_val = ((BASE_TYPE)rand() / RAND_MAX) * 2.0 - 1.0;
+            matrix_set_value_at(m, i, j, random_val * weight_scale);
+        }
+    }
+
+}

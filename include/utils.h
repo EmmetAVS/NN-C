@@ -15,5 +15,6 @@ size_t argmax(Vector *vec);
 Shuffler *create_shuffler(size_t length);
 void destroy_shuffler(Shuffler *shuffler);
 void apply_shuffler(Shuffler *shuffler, void *data, size_t element_size);
+void xavier_uniform_initialize(Matrix *m);
 
 #endif
