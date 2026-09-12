@@ -82,26 +82,6 @@ Tensor *add_tensors(Tensor *t1, Tensor *t2) {
 
 }
 
-Tensor *tensor_batched_matrix_multiply(Tensor *t1, Tensor *t2) {
-
-    size_t *shape = (size_t *)malloc(sizeof(size_t) * t1->dimensions);
-
-    for (size_t i = 0; i < t1->dimensions; i ++) {
-
-        shape[i] = t1->shape[i];
-    }
-
-    shape[t1->dimensions - 1] = t2->shape[t1->dimensions - 1];
-
-    Tensor *new = create_tensor_from_shape(t1->dimensions, shape);
-
-    size_t *indexes = (size_t *)malloc(sizeof(size_t) * t1->dimensions);
-    tensor_batched_matrix_multiply_dimension_indexed(t1, t2, new, 0, indexes);
-    free(indexes);
-
-    return new;
-
-}
 
 /*
 Indexes must be of length t1->dimensions = t2->dimensions
@@ -143,5 +123,26 @@ static void tensor_batched_matrix_multiply_dimension_indexed(Tensor *t1, Tensor 
         indexes[dim] = i;
         tensor_batched_matrix_multiply_dimension_indexed(t1, t2, new, dim + 1, indexes);
     }
+
+}
+
+Tensor *tensor_batched_matrix_multiply(Tensor *t1, Tensor *t2) {
+
+    size_t *shape = (size_t *)malloc(sizeof(size_t) * t1->dimensions);
+
+    for (size_t i = 0; i < t1->dimensions; i ++) {
+
+        shape[i] = t1->shape[i];
+    }
+
+    shape[t1->dimensions - 1] = t2->shape[t1->dimensions - 1];
+
+    Tensor *new = create_tensor_from_shape(t1->dimensions, shape);
+
+    size_t *indexes = (size_t *)malloc(sizeof(size_t) * t1->dimensions);
+    tensor_batched_matrix_multiply_dimension_indexed(t1, t2, new, 0, indexes);
+    free(indexes);
+
+    return new;
 
 }
