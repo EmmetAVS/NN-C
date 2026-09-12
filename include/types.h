@@ -16,6 +16,7 @@
     if (!_state.srand_called) {\
         unsigned int seed = _state.srand_seed_set ? _state.srand_seed : (unsigned int) _time();\
         srand(seed);\
+        _state.srand_called = true;\
     }\
 
 typedef struct Vector {
