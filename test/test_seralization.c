@@ -100,7 +100,7 @@ int main() {
     }
 
     printf("Total loss difference: %f\n", total_loss_difference);
-    assert(total_loss_difference < EPSILON);
+    CHECK(total_loss_difference < EPSILON);
 
     destroy_model2d(model1);
     destroy_model2d(model2);

@@ -7,4 +7,13 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define FLOAT_EQ(a, b) (fabsf((a) - (b)) < EPSILON)
+#define FLOAT_EQ(a, b) (fabsf((a) - (b)) < TOLERANCE)
+
+#define CHECK(cond)                                                    \
+    do {                                                               \
+        if (!(cond)) {                                                 \
+            fprintf(stderr, "FAIL %s:%d: %s\n",                        \
+                    __FILE__, __LINE__, #cond);                        \
+            exit(1);                                                   \
+        }                                                              \
+    } while (0)

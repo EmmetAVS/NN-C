@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <assert.h>
 #include <math.h>
 #include "backprop.h"
 #include "loss.h"
@@ -25,8 +24,8 @@ void test_forward_backward_update() {
     }
 
     Vector *activated = forward_layer(layer, input, true);
-    assert(activated != NULL);
-    assert(activated->length == 2);
+    CHECK(activated != NULL);
+    CHECK(activated->length == 2);
 
     Vector *logits = create_vector(2);
     for (size_t i = 0; i < 2; i++) {
@@ -59,23 +58,23 @@ void test_forward_backward_update() {
     };
 
     LayerGradients *grads = backward_layer(layer, input, logits, &context);
-    assert(grads != NULL);
-    assert(grads->d_weights != NULL);
-    assert(grads->d_biases != NULL);
-    assert(grads->d_inputs != NULL);
+    CHECK(grads != NULL);
+    CHECK(grads->d_weights != NULL);
+    CHECK(grads->d_biases != NULL);
+    CHECK(grads->d_inputs != NULL);
 
-    assert(fabs(grads->d_biases->data[0] - dL_dz0) < EPSILON);
-    assert(fabs(grads->d_biases->data[1] - dL_dz1) < EPSILON);
+    CHECK(fabs(grads->d_biases->data[0] - dL_dz0) < EPSILON);
+    CHECK(fabs(grads->d_biases->data[1] - dL_dz1) < EPSILON);
 
     size_t rows = grads->d_weights->rows;
     size_t cols = grads->d_weights->cols;
-    assert(rows == 2 && cols == 3);
+    CHECK(rows == 2 && cols == 3);
 
     for (size_t i = 0; i < rows; i++) {
         for (size_t j = 0; j < cols; j++) {
             BASE_TYPE expected = dLoss_dZ->data[i] * input->data[j];
             BASE_TYPE actual = grads->d_weights->data[i * cols + j];
-            assert(fabs(actual - expected) < EPSILON);
+            CHECK(fabs(actual - expected) < EPSILON);
         }
     }
 
@@ -83,7 +82,7 @@ void test_forward_backward_update() {
         BASE_TYPE expected =
             matrix_get_value_at(layer->weights, 0, i) * dL_dz0 +
             matrix_get_value_at(layer->weights, 1, i) * dL_dz1;
-        assert(fabs(grads->d_inputs->data[i] - expected) < EPSILON);
+        CHECK(fabs(grads->d_inputs->data[i] - expected) < EPSILON);
     }
 
     BASE_TYPE old_weight = layer->weights->data[0];
@@ -91,7 +90,7 @@ void test_forward_backward_update() {
 
     update_layer_parameters(layer, grads, learning_rate);
     BASE_TYPE new_weight = layer->weights->data[0];
-    assert(fabs(new_weight - old_weight) > 0.0f);
+    CHECK(fabs(new_weight - old_weight) > 0.0f);
 
     destroy_vector(dLoss_dZ);
     destroy_vector(logits);
@@ -104,10 +103,10 @@ void test_forward_backward_update() {
 
 void test_create_destroy_layer_gradients() {
     LayerGradients *grads = create_layer_gradients(3, 2);
-    assert(grads != NULL);
-    assert(grads->d_weights != NULL);
-    assert(grads->d_biases != NULL);
-    assert(grads->d_inputs != NULL);
+    CHECK(grads != NULL);
+    CHECK(grads->d_weights != NULL);
+    CHECK(grads->d_biases != NULL);
+    CHECK(grads->d_inputs != NULL);
     destroy_layer_gradients(grads);
 }
 
@@ -148,7 +147,7 @@ void test_loss_decreases_after_update() {
     BASE_TYPE loss_after = cross_entropy_loss(output_after, label);
 
     printf("Loss before: %f, Loss after: %f\n", loss_before, loss_after);
-    assert(loss_after < loss_before);
+    CHECK(loss_after < loss_before);
 
     // Cleanup
     destroy_vector(input);

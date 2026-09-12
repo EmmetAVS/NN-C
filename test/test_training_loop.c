@@ -76,7 +76,7 @@ void test_training_loop_reduces_loss() {
             if (epoch == 0) {
                 prev_loss = total_loss;
             } else {
-                assert(total_loss < prev_loss && "Loss did not decrease.");
+                CHECK(total_loss < prev_loss && "Loss did not decrease.");
                 prev_loss = total_loss;
             }
         }

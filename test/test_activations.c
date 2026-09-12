@@ -17,8 +17,8 @@ int test_softmax_cross_entropy() {
     BASE_TYPE loss = activation_loss_softmax_cross_entropy
         .function.activation_loss_function.forward_with_loss(logits, labels);
 
-    assert(!isnan(loss));
-    assert(fabsf(0.407606f - loss) < TOLERANCE);
+    CHECK(!isnan(loss));
+    CHECK(fabsf(0.407606f - loss) < TOLERANCE);
 
     output = activation_loss_softmax_cross_entropy.function.activation_loss_function.forward(logits);
 
@@ -26,15 +26,15 @@ int test_softmax_cross_entropy() {
     for (size_t i = 0; i < output->length; ++i) {
         sum += output->data[i];
     }
-    assert(fabsf(sum - 1.0f) < TOLERANCE);
+    CHECK(fabsf(sum - 1.0f) < TOLERANCE);
 
     Vector *grads = activation_loss_softmax_cross_entropy
         .function.activation_loss_function.backward(logits, labels);
 
-    assert(grads != NULL);
+    CHECK(grads != NULL);
 
     for (size_t i = 0; i < grads->length; ++i) {
-        assert(!isnan(grads->data[i]));
+        CHECK(!isnan(grads->data[i]));
     }
 
     destroy_vector(logits);
@@ -63,7 +63,7 @@ int main() {
 
     for (size_t i = 0; i < LENGTH; i ++) {
 
-        assert(fabsf(output->data[i] - ex_relu_activated[i]) < TOLERANCE);
+        CHECK(fabsf(output->data[i] - ex_relu_activated[i]) < TOLERANCE);
 
     }
 
@@ -71,7 +71,7 @@ int main() {
 
     for (size_t i = 0; i < LENGTH; i ++) {
 
-        assert(fabsf(relu_backwards->data[i] - ex_relu_backwards[i]) < TOLERANCE);
+        CHECK(fabsf(relu_backwards->data[i] - ex_relu_backwards[i]) < TOLERANCE);
 
     }
 

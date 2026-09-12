@@ -1,5 +1,5 @@
 #include "types.h"
-#include <assert.h>
+#include "tests.h"
 #include <stdio.h>
 
 int main() {
@@ -16,11 +16,11 @@ int main() {
 
     //Test Matrix Indexing
     m = create_matrix(10, 10);
-    assert(matrix_get_value_at(m, 0, 0) == 0.f);
-    assert(matrix_set_value_at(m, 0, 0, 1) == 0.f);
-    assert(matrix_get_value_at(m, 0, 0) == 1.f);
-    assert(isnan(matrix_get_value_at(m, 10, 9)));
-    assert(isnan(matrix_get_value_at(m, 9, 10)));
+    CHECK(matrix_get_value_at(m, 0, 0) == 0.f);
+    CHECK(matrix_set_value_at(m, 0, 0, 1) == 0.f);
+    CHECK(matrix_get_value_at(m, 0, 0) == 1.f);
+    CHECK(isnan(matrix_get_value_at(m, 10, 9)));
+    CHECK(isnan(matrix_get_value_at(m, 9, 10)));
 
     destroy_matrix(m);
 

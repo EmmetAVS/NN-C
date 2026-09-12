@@ -1,6 +1,6 @@
 #include "operations.h"
 #include "types.h"
-#include <assert.h>
+#include "tests.h"
 
 /*
 
@@ -44,14 +44,14 @@ int main() {
 
     for (int i = 0; i < product -> length; i ++) {
 
-        assert(product->data[i] == values[i]);
+        CHECK(product->data[i] == values[i]);
 
     }
     destroy_vector(product);
 
     Vector *v2 = create_vector(size + 1);
     
-    assert(multiply_matrix_with_vector(m, v2) == NULL);
+    CHECK(multiply_matrix_with_vector(m, v2) == NULL);
     destroy_vector(v2);
 
     v2 = create_vector(size);
@@ -65,7 +65,7 @@ int main() {
     Vector *sum = add_vector_to_vector(v, v2);
     for (int i = 0; i < sum->length; i ++) {
 
-        assert(sum->data[i] == 0.f);
+        CHECK(sum->data[i] == 0.f);
 
     }
 

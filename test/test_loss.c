@@ -38,16 +38,16 @@ int main() {
     Vector *mse_output = output_vecs[0];
 
     BASE_TYPE mse_result = mean_squared_error_loss.forward(mse_output, mse_expected);
-    assert(fabsf(mse_result - 0.01f) < TOLERANCE);
+    CHECK(fabsf(mse_result - 0.01f) < TOLERANCE);
 
-    assert(fabsf(calculate_cost(output_vecs, expected_vecs, BATCH_SIZE, mean_squared_error_loss.forward) - 0.012f) < TOLERANCE);
+    CHECK(fabsf(calculate_cost(output_vecs, expected_vecs, BATCH_SIZE, mean_squared_error_loss.forward) - 0.012f) < TOLERANCE);
 
     Vector *dLoss_dActivated = mean_squared_error_loss.backward(mse_output, mse_expected);
     const BASE_TYPE expected_mse_grads_data[LENGTH] = {-0.04f, 0.04f, -0.04f, -0.04f, 0.04f};
 
     for (size_t i = 0; i < dLoss_dActivated->length; i ++) {
 
-        assert(fabsf(expected_mse_grads_data[i] - dLoss_dActivated->data[i]) <= TOLERANCE);
+        CHECK(fabsf(expected_mse_grads_data[i] - dLoss_dActivated->data[i]) <= TOLERANCE);
 
     }
 
