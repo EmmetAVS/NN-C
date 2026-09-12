@@ -120,3 +120,16 @@ Vector *flatten(Matrix *input) {
     return new;
 
 }
+
+Matrix *transpose_matrix(Matrix *m) {
+
+    Matrix *new = create_matrix(m->cols, m->rows);
+
+    for (int i = 0; i < m->rows; i ++) {
+        for (int j = 0; j < m->cols; j ++) {
+            BASE_TYPE val = matrix_get_value_at(m, i, j);
+            matrix_set_value_at(new, j, i, val);
+        }
+    }
+
+}

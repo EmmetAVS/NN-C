@@ -2,19 +2,6 @@
 #include "types.h"
 #include "tests.h"
 
-/*
-
-To Test
-
-Vector *add_vector_to_vector(Vector *v1, Vector *v2);
-Vector *multiply_matrix_with_vector(Matrix *m, Vector *v);
-Vector *average_vectors(Vector **vectors, size_t length);
-Vector *multiply_vector_contents(Vector *v1, Vector *v2);
-Vector* flatten(Matrix* input);
-Matrix *average_matrices(Matrix **matrices, size_t length);
-
-*/
-
 int main() {
     
     nnlib_startup();
@@ -69,10 +56,31 @@ int main() {
 
     }
 
+
+    Matrix *m2 = create_matrix(size, size + 1);
+
+    for (int r = 0; r < m2->rows; r ++) {
+        for (int c = 0; c < m2-> cols; c ++ ) {
+            matrix_set_value_at(m2, r, c, sin(r) + cos(c));
+        }
+    }
+
+    Matrix *transposed = transpose_matrix(m2);
+
+    for (int r = 0; r < m->rows; r ++) {
+        for (int c = 0; c < m-> cols; c ++ ) {
+            BASE_TYPE transposed_value = matrix_get_value_at(transposed, r, c);
+            BASE_TYPE original_value = matrix_get_value_at(m2, c, r);
+            CHECK(FLOAT_EQ(transposed_value, original_value));
+        }
+    }
+
     destroy_vector(v);
     destroy_matrix(m);
     destroy_vector(v2);
     destroy_vector(sum);
+    destroy_matrix(m2);
+    destroy_matrix(transposed);
 
     return 0;
 

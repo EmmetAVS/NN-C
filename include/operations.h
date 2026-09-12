@@ -9,5 +9,6 @@ Vector *average_vectors(Vector **vectors, size_t length);
 Vector *multiply_vector_contents(Vector *v1, Vector *v2);
 Vector* flatten(Matrix* input);
 Matrix *average_matrices(Matrix **matrices, size_t length);
+Matrix *transpose_matrix(Matrix *m);
 
 #endif
