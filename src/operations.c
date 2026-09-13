@@ -132,4 +132,29 @@ Matrix *transpose_matrix(Matrix *m) {
         }
     }
 
+    return new;
+
+}
+
+//Requires m1->cols == m2->rows
+Matrix *multiply_matrices(Matrix *m1, Matrix *m2) {
+
+    Matrix *new = create_matrix(m1->rows, m2->cols);
+
+    for (size_t r = 0; r < new->rows; r ++) {
+        for (size_t c = 0; c < new->cols; c ++) {
+
+            BASE_TYPE val = 0.0;
+
+            for (size_t i = 0; i < m1->cols; i ++) {
+                val += matrix_get_value_at(m1, r, i) * matrix_get_value_at(m2, i, c);
+            }
+
+            matrix_set_value_at(new, r, c, val);
+
+        }
+    }
+
+    return new;
+
 }

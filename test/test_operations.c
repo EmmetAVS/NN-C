@@ -75,12 +75,17 @@ int main() {
         }
     }
 
+    Matrix *mult = multiply_matrices(m2, transposed);
+    CHECK(mult->rows == m2->rows);
+    CHECK(mult->cols == transposed->cols);
+
     destroy_vector(v);
     destroy_matrix(m);
     destroy_vector(v2);
     destroy_vector(sum);
     destroy_matrix(m2);
     destroy_matrix(transposed);
+    destroy_matrix(mult);
 
     return 0;
 
