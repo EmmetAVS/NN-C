@@ -19,6 +19,8 @@
         _state.srand_called = true;\
     }\
 
+#define MATRIX_INDEX(m, r, c) ((m->cols) * r) + c
+
 typedef struct Vector {
 
     BASE_TYPE *data;
@@ -46,8 +48,32 @@ void destroy_vector(Vector *vector);
 
 Matrix *create_matrix(size_t rows, size_t cols);
 void destroy_matrix(Matrix *matrix);
-BASE_TYPE matrix_get_value_at(Matrix *m, int rowIndex, int colIndex);
-BASE_TYPE matrix_set_value_at(Matrix *m, int rowIndex, int colIndex, BASE_TYPE value);
+
+static inline BASE_TYPE matrix_get_value_at(Matrix *m, int rowIndex, int colIndex) {
+
+    const size_t index = MATRIX_INDEX(m, rowIndex, colIndex);
+
+    if (index >= m->cols * m-> rows) 
+        return UNDEFINED;
+
+    return m->data[index];
+
+}
+
+static inline BASE_TYPE matrix_set_value_at(Matrix *m, int rowIndex, int colIndex, BASE_TYPE value) {
+
+    const size_t index = MATRIX_INDEX(m, rowIndex, colIndex);
+
+    if (index >= m->cols * m-> rows) 
+        return UNDEFINED;
+
+    const BASE_TYPE old_value = m->data[index];
+
+    m->data[index] = value;
+
+    return old_value;
+
+}
 
 bool nnlib_startup();
 

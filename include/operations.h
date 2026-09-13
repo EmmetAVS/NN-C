@@ -12,4 +12,14 @@ Matrix *average_matrices(Matrix **matrices, size_t length);
 Matrix *transpose_matrix(Matrix *m);
 Matrix *multiply_matrices(Matrix *m1, Matrix *m2);
 
+static inline void scalar_multiply_matrix(Matrix *m, BASE_TYPE scalar) {
+
+    for (size_t r = 0; r < m->rows; r ++) {
+        for (size_t c = 0; c < m->cols; c ++) {
+            m->data[MATRIX_INDEX(m, r, c)] *= scalar;
+        }
+    }
+
+}
+
 #endif

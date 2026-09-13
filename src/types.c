@@ -38,32 +38,6 @@ void destroy_matrix(Matrix *matrix) {
 
 }
 
-BASE_TYPE matrix_get_value_at(Matrix *m, int rowIndex, int colIndex) {
-
-    const size_t index = ((m->cols) * rowIndex) + colIndex;
-
-    if (index >= m->cols * m-> rows) 
-        return UNDEFINED;
-
-    return m->data[index];
-
-}
-
-BASE_TYPE matrix_set_value_at(Matrix *m, int rowIndex, int colIndex, BASE_TYPE value) {
-
-    const size_t index = ((m->cols) * rowIndex) + colIndex;
-
-    if (index >= m->cols * m-> rows) 
-        return UNDEFINED;
-
-    const BASE_TYPE old_value = m->data[index];
-
-    m->data[index] = value;
-
-    return old_value;
-
-}
-
 unsigned int _time() {
     return (unsigned int) time(NULL);
 }
